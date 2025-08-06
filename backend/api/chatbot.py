@@ -7,7 +7,8 @@ import tempfile
 import speech_recognition as sr
 from pydub import AudioSegment
 import numpy as np
-from ultralytics import YOLO
+# Temporarily commenting out YOLO import to avoid CUDA errors
+# from ultralytics import YOLO
 import cv2
 from utils.auth_middleware import token_required
 import uuid
@@ -27,7 +28,8 @@ def initialize_gemini():
     
     try:
         genai.configure(api_key=api_key)
-        return genai.GenerativeModel('gemini-pro')
+        # Use the correct model name for the current API version
+        return genai.GenerativeModel('gemini-1.5-pro')
     except Exception as e:
         print(f"Error initializing Gemini API: {e}")
         return None
@@ -37,18 +39,20 @@ gemini_model = None
 
 def load_model():
     global model, gemini_model
-    if model is None:
-        try:
-            model = YOLO('yolov8n.pt')  # Load the small model version for faster inference
-        except Exception as e:
-            print(f"Error loading YOLO model: {e}")
-            return None
+    # Temporarily disable YOLO model loading
+    # if model is None:
+    #     try:
+    #         model = YOLO('yolov8n.pt')  # Load the small model version for faster inference
+    #     except Exception as e:
+    #         print(f"Error loading YOLO model: {e}")
+    #         return None
     
     # Initialize Gemini model if not already initialized
     if gemini_model is None:
         gemini_model = initialize_gemini()
     
-    return model
+    # Return True instead of model since we're not loading YOLO
+    return True
 
 # Function to process text with Gemini API
 def process_with_gemini(message):
@@ -271,30 +275,8 @@ def process_image(current_user):
         temp_img_path = temp_img.name
     
     try:
-        # Load the YOLO model
-        yolo_model = load_model()
-        if yolo_model is None:
-            return jsonify({'error': 'Failed to load object detection model'}), 500
-        
-        # Run inference on the image
-        results = yolo_model(temp_img_path)
-        
-        # Process results
-        detected_objects = []
-        for result in results:
-            boxes = result.boxes
-            for box in boxes:
-                # Get class name and confidence
-                cls_id = int(box.cls.item())
-                conf = float(box.conf.item())
-                cls_name = result.names[cls_id]
-                
-                # Only include objects with confidence > 0.5
-                if conf > 0.5:
-                    detected_objects.append({
-                        'name': cls_name,
-                        'confidence': conf
-                    })
+        # Temporarily disabled YOLO model loading and object detection
+        # Instead, we'll just save the image and return a generic response
         
         # Generate a unique filename for the uploaded image
         filename = f"{uuid.uuid4()}.jpg"
@@ -309,28 +291,16 @@ def process_image(current_user):
         # Clean up temporary file
         os.remove(temp_img_path)
         
-        # Generate response based on detected objects
-        if detected_objects:
-            # Determine if any detected objects indicate a potential issue
-            issue_objects = ['broken', 'damaged', 'crack', 'leak', 'fire', 'smoke', 'garbage', 'trash']
-            potential_issues = [obj for obj in detected_objects if any(issue in obj['name'].lower() for issue in issue_objects)]
-            
-            if potential_issues:
-                message = "I've detected potential issues in your image. Would you like to create a complaint ticket?"
-                suggest_ticket = True
-            else:
-                message = "I've analyzed your image. What would you like to report about these items?"
-                suggest_ticket = True
-        else:
-            message = "I couldn't detect any specific objects in your image. Please provide more details about your complaint."
-            suggest_ticket = False
+        # Generate a generic response since we're not using object detection
+        message = "I've received your image. Please provide more details about your complaint."
+        suggest_ticket = True
         
         # Create image URL
         image_url = f"/static/uploads/{filename}"
         
         return jsonify({
             'message': message,
-            'detectedObjects': detected_objects,
+            'detectedObjects': [],  # Empty list since we're not using object detection
             'imageUrl': image_url,
             'suggestTicket': suggest_ticket
         })
@@ -344,6 +314,89 @@ def process_image(current_user):
         return jsonify({
             'error': f'Error processing image: {str(e)}'
         }), 500
+
+@chatbot_bp.route('/message', methods=['POST'])
+@token_required
+def process_message(current_user):
+    data = request.get_json()
+    
+    if 'message' not in data or not data['message'].strip():
+        return jsonify({'error': 'Message is required'}), 400
+    
+    message = data['message']
+    
+    # Process with Gemini or fallback to keyword-based processing
+    gemini_response = process_with_gemini(message)
+    
+    if gemini_response:
+        return jsonify(gemini_response)
+    
+    # If Gemini processing failed, use the same logic as process-text endpoint
+    # Simple keyword-based intent detection
+    keywords = {
+        'complaint': ['complaint', 'issue', 'problem', 'broken', 'not working', 'faulty', 'damaged'],
+        'inquiry': ['how to', 'what is', 'where is', 'when', 'why', 'who', 'information', 'help'],
+        'feedback': ['feedback', 'suggestion', 'improve', 'better', 'recommend']
+    }
+    
+    # Determine intent
+    intent = 'general'
+    for key, words in keywords.items():
+        if any(word in message.lower() for word in words):
+            intent = key
+            break
+    
+    # Generate response based on intent
+    if intent == 'complaint':
+        # Extract potential category
+        categories = ['hardware', 'software', 'network', 'service', 'billing', 'other']
+        detected_category = 'other'
+        
+        for category in categories:
+            if category in message.lower():
+                detected_category = category
+                break
+        
+        # Generate ticket creation suggestion
+        response = {
+            'message': "I understand you're experiencing an issue. Would you like to create a formal complaint ticket?",
+            'intent': 'complaint',
+            'suggestTicket': True,
+            'ticketData': {
+                'subject': message[:50] + ('...' if len(message) > 50 else ''),
+                'description': message,
+                'category': detected_category,
+                'priority': 'medium'
+            }
+        }
+    elif intent == 'inquiry':
+        response = {
+            'message': "I'd be happy to help with your inquiry. Let me provide some information.",
+            'intent': 'inquiry',
+            'suggestTicket': False,
+            'faq': {
+                'title': 'Frequently Asked Questions',
+                'items': [
+                    {'question': 'How do I track my complaint?', 'answer': 'You can track your complaint in the dashboard under the "My Complaints" section.'},
+                    {'question': 'How long does resolution take?', 'answer': 'Resolution time depends on the complexity of the issue, but we aim to resolve most complaints within 48-72 hours.'},
+                    {'question': 'Can I update my complaint?', 'answer': 'Yes, you can add comments to your complaint from the complaint detail page.'}
+                ]
+            }
+        }
+    elif intent == 'feedback':
+        response = {
+            'message': "Thank you for your feedback! We appreciate your input to help us improve our services.",
+            'intent': 'feedback',
+            'suggestTicket': False
+        }
+    else:
+        response = {
+            'message': "Hello! How can I assist you today? You can report a complaint, ask for information, or provide feedback.",
+            'intent': 'general',
+            'suggestTicket': False
+        }
+    
+    return jsonify(response)
 
 @chatbot_bp.route('/create-ticket', methods=['POST'])
 @token_required

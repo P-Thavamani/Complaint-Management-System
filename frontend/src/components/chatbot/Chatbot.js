@@ -1,20 +1,73 @@
 import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../../services/axios';
 import { toast } from 'react-toastify';
 import ChatMessage from './ChatMessage';
 import VoiceInput from './VoiceInput';
 import ImageUpload from './ImageUpload';
+import { useAI } from '../hooks/useAI';
 
 const Chatbot = ({ onClose }) => {
+  // Initialize with default welcome message
   const [messages, setMessages] = useState([{
     type: 'bot',
     content: 'Hello! I\'m your AI assistant. How can I help you today? You can type your complaint, use voice input, or upload an image of the issue.',
-    timestamp: new Date()
+    timestamp: new Date(),
+    options: []
   }]);
+  
+  // Input state and refs
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isVoiceInputActive, setIsVoiceInputActive] = useState(false);
   const [isImageUploadActive, setIsImageUploadActive] = useState(false);
+  const [showAIFeatures, setShowAIFeatures] = useState(false);
+  
+  // Initialize complaint categories state
+  const [loading, setLoading] = useState(false);
+  const [complaintCategories, setComplaintCategories] = useState({});
+  
+  // Update initial message with categories from state
+  useEffect(() => {
+    // Only update if we have categories
+    if (Object.keys(complaintCategories).length > 0) {
+      // Update initial message with categories
+      setMessages(prev => {
+        const updatedMessages = [...prev];
+        if (updatedMessages.length > 0) {
+          updatedMessages[0] = {
+            ...updatedMessages[0],
+            options: Object.entries(complaintCategories).map(([id, category]) => ({
+              id: id,
+              text: category.name
+            }))
+          };
+        }
+        return updatedMessages;
+      });
+    }
+  }, [complaintCategories]);
+  
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get('/api/categories/');
+        console.log('Categories API response:', response.data);
+        setComplaintCategories(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        toast.error('Failed to load categories. Using default categories.');
+        setLoading(false);
+      }
+    };
+    
+    fetchCategories();
+  }, []);
+  
+  // Use the AI hook for ticket processing
+  const { isProcessing, createTicket, categorizeComplaint, determinePriority, determineAssignment } = useAI();
   
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -37,6 +90,239 @@ const Chatbot = ({ onClose }) => {
 
   const handleInputChange = (e) => {
     setInput(e.target.value);
+  };
+  
+  // Handle option selection from the chatbot options
+  const handleOptionSelect = async (optionId, optionText) => {
+    // Add user message showing their selection
+    const userMessage = {
+      type: 'user',
+      content: `I need help with: ${optionText}`,
+      timestamp: new Date(),
+      isOption: true
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setIsLoading(true);
+    
+    try {
+      console.log('Selected option:', optionId, optionText);
+      console.log('Available categories:', complaintCategories);
+      
+      // Check if this is a main category or subcategory
+      const isMainCategory = Object.keys(complaintCategories).includes(optionId);
+      const [mainCategory, subCategory] = isMainCategory ? [optionId, null] : optionId.split('.');
+      
+      console.log('Is main category:', isMainCategory);
+      console.log('Main category:', mainCategory);
+      console.log('Subcategory:', subCategory);
+      
+      // Process the selected option
+      const category = mainCategory; // Use the main category ID
+      const priority = category === 'technical' || category === 'service' ? 'high' : 'medium';
+      
+      // If this is a main category, show subcategories
+      if (isMainCategory) {
+        const categoryData = complaintCategories[mainCategory];
+        const subcategories = categoryData.subcategories;
+        
+        // Create options for subcategories
+        const subcategoryOptions = Object.entries(subcategories).map(([id, data]) => ({
+          id: `${mainCategory}.${id}`,
+          text: data.name
+        }));
+        
+        // Add bot response with subcategories
+        const botResponse = {
+          type: 'bot',
+          content: `Please select a specific issue related to ${categoryData.name}:`,
+          timestamp: new Date(),
+          options: subcategoryOptions,
+          category: mainCategory
+        };
+        
+        setMessages(prev => [...prev, botResponse]);
+      } else {
+        // This is a subcategory selection
+        const categoryData = complaintCategories[mainCategory];
+        const subcategoryData = categoryData.subcategories[subCategory];
+        
+        // Create the problem and solution message
+        const problemSolutionContent = `
+**Problem:** ${subcategoryData.problem}
+
+**Solution:**
+${subcategoryData.solution.map(step => `• ${step}`).join('\n')}
+
+If the provided solution does not work, you can click "Open Ticket" to get help from our support team.`;
+        
+        // Add bot response with problem and solution
+        const botResponse = {
+          type: 'bot',
+          content: problemSolutionContent,
+          timestamp: new Date(),
+          category: mainCategory,
+          subcategory: subCategory,
+          problem: subcategoryData.problem,
+          solution: subcategoryData.solution,
+          options: [
+            { id: 'open_ticket', text: 'Open Ticket' },
+            { id: 'solved', text: 'Issue Solved' }
+          ]
+        };
+        
+        setMessages(prev => [...prev, botResponse]);
+        
+        // If it's a serious issue, create a ticket automatically
+        if (['technical.crash', 'billing.duplicate_charges', 'service.unavailable'].includes(`${mainCategory}.${subCategory}`)) {
+          // Create ticket with AI-determined category and priority
+          const ticketResult = await createTicket(subcategoryData.name, category, priority);
+          
+          if (ticketResult && ticketResult.success) {
+            // Add ticket creation confirmation
+            const ticketMessage = {
+              type: 'bot',
+              content: `I've automatically created a ticket for this issue. Category: ${categoryData.name}, Subcategory: ${subcategoryData.name}, Priority: ${priority}`,
+              timestamp: new Date(),
+              ticketCreated: true,
+              ticketId: ticketResult.ticketId
+            };
+            
+            setMessages(prev => [...prev, ticketMessage]);
+            toast.success(`Ticket #${ticketResult.ticketId} has been created for your complaint.`);
+          }
+        }
+      }
+      
+      // Handle special options
+      if (optionId === 'open_ticket') {
+        // Show ticket form
+        const ticketFormMessage = {
+          type: 'bot',
+          content: 'Please provide additional details about your issue:',
+          timestamp: new Date(),
+          isTicketForm: true
+        };
+        
+        setMessages(prev => [...prev, ticketFormMessage]);
+      } else if (optionId === 'solved') {
+        // Thank the user
+        const thankYouMessage = {
+          type: 'bot',
+          content: 'Great! I\'m glad the solution helped. Is there anything else I can assist you with?',
+          timestamp: new Date(),
+          options: Object.entries(complaintCategories).map(([id, category]) => ({
+            id: id,
+            text: category.name
+          }))
+        };
+        
+        setMessages(prev => [...prev, thankYouMessage]);
+      }
+    } catch (error) {
+      console.error('Error processing option:', error);
+      
+      // Add error message to chat
+      const errorMessage = {
+        type: 'bot',
+        content: 'Sorry, I encountered an error processing your selection. Please try again or type your issue directly.',
+        timestamp: new Date(),
+        isError: true
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Legacy handleOptionSelect for backward compatibility
+  const handleLegacyOptionSelect = async (optionId, optionText) => {
+    // Add user message showing their selection
+    const userMessage = {
+      type: 'user',
+      content: `I need help with: ${optionText}`,
+      timestamp: new Date(),
+      isOption: true
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setIsLoading(true);
+    
+    try {
+      // Process the selected option
+      const category = optionId; // Use the option ID as the category
+      const priority = optionId === 'technical' || optionId === 'service' ? 'high' : 'medium';
+      
+      // Add bot response based on the selected option
+      let responseContent = '';
+      
+      switch(optionId) {
+        case 'billing':
+          responseContent = 'I understand you\'re having a billing issue. Could you please provide more details about the problem?';
+          break;
+        case 'technical':
+          responseContent = 'I see you\'re experiencing a technical problem. Could you describe the issue you\'re facing in detail?';
+          break;
+        case 'service':
+          responseContent = 'I\'m sorry to hear you have a service complaint. Please tell me more about the service issue you encountered.';
+          break;
+        case 'feedback':
+          responseContent = 'Thank you for wanting to provide feedback. I\'d love to hear your thoughts on our service.';
+          break;
+        case 'inquiry':
+          responseContent = 'I\'d be happy to help with your account inquiry. What specific information are you looking for?';
+          break;
+        case 'other':
+          responseContent = 'I understand you have another type of issue. Please describe your concern, and I\'ll do my best to assist you.';
+          break;
+        default:
+          responseContent = 'Thank you for selecting an option. How can I assist you further with this?';
+      }
+      
+      const botResponse = {
+        type: 'bot',
+        content: responseContent,
+        timestamp: new Date(),
+        category: category
+      };
+      
+      setMessages(prev => [...prev, botResponse]);
+      
+      // Create a ticket if it's a complaint category
+      if (['billing', 'technical', 'service'].includes(optionId)) {
+        // Create ticket with AI-determined category and priority
+        const ticketResult = await createTicket(optionText, category, priority);
+        
+        if (ticketResult && ticketResult.success) {
+          // Add ticket creation confirmation
+          const ticketMessage = {
+            type: 'bot',
+            content: `I've created a ticket for your ${optionText.toLowerCase()}. Category: ${category}, Priority: ${priority}`,
+            timestamp: new Date(),
+            ticketCreated: true,
+            ticketId: ticketResult.ticketId
+          };
+          
+          setMessages(prev => [...prev, ticketMessage]);
+          toast.success(`Ticket #${ticketResult.ticketId} has been created for your complaint.`);
+        }
+      }
+    } catch (error) {
+      console.error('Error processing option:', error);
+      
+      // Add error message to chat
+      const errorMessage = {
+        type: 'bot',
+        content: 'Sorry, I encountered an error processing your selection. Please try again or type your issue directly.',
+        timestamp: new Date(),
+        isError: true
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -61,20 +347,55 @@ const Chatbot = ({ onClose }) => {
         messageType: 'text'
       });
 
-      // Add bot response to chat
-      const botResponse = {
+      // Process with AI features
+      const category = categorizeComplaint(input);
+      const priority = determinePriority(input);
+      
+      // Add initial bot response to chat
+      const initialResponse = {
         type: 'bot',
         content: response.data.message,
         timestamp: new Date(),
-        ticketCreated: response.data.ticketCreated,
-        ticketId: response.data.ticketId
+        suggestTicket: response.data.suggestTicket || false
       };
-
-      setMessages(prev => [...prev, botResponse]);
-
-      // Show toast if ticket was created
-      if (response.data.ticketCreated) {
-        toast.success(`Ticket #${response.data.ticketId} has been created for your complaint.`);
+      
+      setMessages(prev => [...prev, initialResponse]);
+      
+      // If the message suggests creating a ticket, show AI features
+      if (response.data.suggestTicket || input.toLowerCase().includes('complaint') || 
+          input.toLowerCase().includes('issue') || input.toLowerCase().includes('problem')) {
+        
+        // Add AI features message
+        const aiFeatureMessage = {
+          type: 'bot',
+          content: 'I can help you with your complaint using these AI features:',
+          timestamp: new Date(),
+          aiFeatures: [
+            { title: 'Automatic Ticket Creation', description: 'Upon registering a complaint, the system automatically generates a ticket with all relevant details.' },
+            { title: 'Intelligent Categorization', description: 'AI will categorize tickets based on predefined categories (e.g., billing, technical, service) using machine learning models.' },
+            { title: 'Prioritization System', description: 'AI will assign priority levels (urgent, high, medium, low) based on the complaint\'s nature and keywords.' },
+            { title: 'Dynamic Assignment', description: 'The system will use AI to intelligently assign tickets to the relevant teams or agents based on expertise, workload, and availability.' }
+          ]
+        };
+        
+        setMessages(prev => [...prev, aiFeatureMessage]);
+        
+        // Create ticket with AI-determined category and priority
+        const ticketResult = await createTicket(input, category, priority);
+        
+        if (ticketResult.success) {
+          // Add ticket creation confirmation
+          const ticketMessage = {
+            type: 'bot',
+            content: `I've analyzed your complaint and created a ticket for you. Category: ${category}, Priority: ${priority}`,
+            timestamp: new Date(),
+            ticketCreated: true,
+            ticketId: ticketResult.ticketId
+          };
+          
+          setMessages(prev => [...prev, ticketMessage]);
+          toast.success(`Ticket #${ticketResult.ticketId} has been created for your complaint.`);
+        }
       }
     } catch (error) {
       console.error('Error sending message:', error);
@@ -246,7 +567,11 @@ const Chatbot = ({ onClose }) => {
       {/* Messages Container */}
       <div className="flex-1 p-4 overflow-y-auto">
         {messages.map((message, index) => (
-          <ChatMessage key={index} message={message} />
+          <ChatMessage 
+            key={index} 
+            message={message} 
+            onOptionSelect={handleOptionSelect}
+          />
         ))}
         {isLoading && (
           <div className="flex items-center mt-2">

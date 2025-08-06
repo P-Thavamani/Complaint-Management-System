@@ -4,7 +4,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 
 const Profile = () => {
-  const { user, updateUser } = useContext(AuthContext);
+  const { user, updateUser, fetchUserProfile } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -18,6 +18,30 @@ const Profile = () => {
   const [updating, setUpdating] = useState(false);
   const [changePassword, setChangePassword] = useState(false);
 
+  // Fetch the latest user data from the database when component mounts
+  useEffect(() => {
+    const loadProfileData = async () => {
+      setLoading(true);
+      try {
+        const profileData = await fetchUserProfile();
+        if (!profileData) {
+          // If profile data is null, set loading to false to prevent infinite loading
+          setLoading(false);
+          toast.error('Unable to load profile. Please try again later.');
+          return; // Exit early if no profile data
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error('Error in profile loading:', error);
+        setLoading(false);
+        toast.error('An error occurred while loading your profile.');
+      }
+    };
+    
+    loadProfileData();
+  }, [fetchUserProfile]);
+
+  // Update form data when user data changes
   useEffect(() => {
     if (user) {
       setFormData({
@@ -29,9 +53,12 @@ const Profile = () => {
         newPassword: '',
         confirmPassword: ''
       });
-      setLoading(false);
+      // If we have user data but loading is still true, set it to false
+      if (loading) {
+        setLoading(false);
+      }
     }
-  }, [user]);
+  }, [user, loading]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -68,9 +95,13 @@ const Profile = () => {
       // Prepare data for API call
       const updateData = {
         name: formData.name,
-        phone: formData.phone,
-        department: formData.department
+        phone: formData.phone
       };
+      
+      // Only include department if it has a value
+      if (formData.department.trim()) {
+        updateData.department = formData.department;
+      }
 
       // Add password fields if changing password
       if (changePassword) {
@@ -82,6 +113,9 @@ const Profile = () => {
       
       // Update user context with new data
       updateUser(response.data);
+      
+      // Fetch the latest profile data from the database
+      await fetchUserProfile();
       
       toast.success('Profile updated successfully');
       
@@ -97,8 +131,30 @@ const Profile = () => {
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to update profile';
-      toast.error(errorMessage);
+      
+      // Handle different types of errors
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        const errorMessage = error.response.data?.error || error.response.data?.message || 'Failed to update profile';
+        toast.error(errorMessage);
+        
+        // Log specific error details for debugging
+        if (error.response.status === 400) {
+          console.log('Bad request data:', error.response.data);
+        } else if (error.response.status === 401) {
+          toast.error('Authentication error. Please log in again.');
+          // Could redirect to login page here
+        } else if (error.response.status === 404) {
+          toast.error('User not found. Please log in again.');
+        }
+      } else if (error.request) {
+        // The request was made but no response was received
+        toast.error('No response from server. Please check your connection and try again.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        toast.error('An unexpected error occurred. Please try again later.');
+      }
     } finally {
       setUpdating(false);
     }

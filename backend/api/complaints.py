@@ -52,6 +52,19 @@ def get_user_complaints(current_user):
     
     return jsonify(formatted_complaints)
 
+@complaints_bp.route('/user', methods=['GET'])
+@token_required
+def get_user_complaints_endpoint(current_user):
+    db = current_app.config['db']
+    
+    # Get all complaints for the current user
+    user_complaints = list(db.complaints.find({'user_id': ObjectId(current_user['id'])}))
+    
+    # Format complaints for response
+    formatted_complaints = [format_complaint(complaint) for complaint in user_complaints]
+    
+    return jsonify(formatted_complaints)
+
 @complaints_bp.route('/stats', methods=['GET'])
 @token_required
 def get_user_complaint_stats(current_user):
@@ -91,6 +104,9 @@ def create_complaint(current_user):
         'subject': data['subject'],
         'description': data['description'],
         'category': data['category'],
+        'subcategory': data.get('subcategory', ''),
+        'subcategoryName': data.get('subcategoryName', ''),
+        'problem': data.get('problem', ''),
         'status': 'pending',
         'priority': data.get('priority', 'medium'),  # Default to medium priority
         'user_id': ObjectId(current_user['id']),

@@ -1,6 +1,15 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
 
-const ChatMessage = ({ message }) => {
+const ChatMessage = ({ message, onOptionSelect }) => {
+  // Function to handle option selection
+  const handleOptionSelect = (optionId, optionText) => {
+    console.log(`Selected option: ${optionText} (ID: ${optionId})`);
+    // Call the parent component function
+    if (onOptionSelect) {
+      onOptionSelect(optionId, optionText);
+    }
+  };
   // Format timestamp
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
@@ -37,6 +46,92 @@ const ChatMessage = ({ message }) => {
         </div>
       );
     }
+
+    // For AI features list
+    if (message.aiFeatures && message.aiFeatures.length > 0) {
+      return (
+        <div>
+          <p className="mb-2">{message.content}</p>
+          <div className="mt-2 space-y-2">
+            {message.aiFeatures.map((feature, index) => (
+              <div key={index} className="p-2 bg-primary-50 border border-primary-100 rounded-md">
+                <h4 className="text-sm font-semibold text-primary-700">{feature.title}</h4>
+                <p className="text-xs text-gray-600 mt-1">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    
+    // For messages with options
+     if (message.options && message.options.length > 0) {
+       return (
+         <div>
+           <div className="mb-2">
+             <ReactMarkdown>{message.content}</ReactMarkdown>
+           </div>
+           <div className="mt-3 grid grid-cols-2 gap-2">
+             {message.options.map((option, index) => (
+               <button 
+                 key={index} 
+                 className="p-2 text-left border border-primary-200 rounded-md hover:bg-primary-50 transition-colors"
+                 onClick={() => handleOptionSelect(option.id, option.text)}
+               >
+                 <div className="font-medium text-primary-700">{option.text}</div>
+               </button>
+             ))}
+           </div>
+         </div>
+       );
+     }
+     
+     // For problem and solution content
+     if (message.problem || message.solution) {
+       return (
+         <div>
+           {message.content && (
+             <div className="mb-2">
+               <ReactMarkdown>{message.content}</ReactMarkdown>
+             </div>
+           )}
+           
+           {message.problem && (
+             <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-md">
+               <h4 className="text-sm font-semibold text-red-700 mb-1">Problem:</h4>
+               <div className="text-sm text-red-600">
+                 <ReactMarkdown>{message.problem}</ReactMarkdown>
+               </div>
+             </div>
+           )}
+           
+           {message.solution && (
+             <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
+               <h4 className="text-sm font-semibold text-green-700 mb-1">Solution:</h4>
+               <div className="text-sm text-green-600">
+                 <ReactMarkdown>
+                   {Array.isArray(message.solution) ? message.solution.join('\n- ') : message.solution}
+                 </ReactMarkdown>
+               </div>
+             </div>
+           )}
+           
+           {message.options && message.options.length > 0 && (
+             <div className="mt-3 grid grid-cols-2 gap-2">
+               {message.options.map((option, index) => (
+                 <button 
+                   key={index} 
+                   className="p-2 text-left border border-primary-200 rounded-md hover:bg-primary-50 transition-colors"
+                   onClick={() => handleOptionSelect(option.id, option.text)}
+                 >
+                   <div className="font-medium text-primary-700">{option.text}</div>
+                 </button>
+               ))}
+             </div>
+           )}
+         </div>
+       );
+     }
 
     // For ticket creation messages
     if (message.ticketCreated && message.ticketId) {
@@ -92,8 +187,8 @@ const ChatMessage = ({ message }) => {
       );
     }
 
-    // Default text message
-    return <p>{message.content}</p>;
+    // Default text message - use ReactMarkdown for formatting
+    return <ReactMarkdown>{message.content}</ReactMarkdown>;
   };
 
   return (

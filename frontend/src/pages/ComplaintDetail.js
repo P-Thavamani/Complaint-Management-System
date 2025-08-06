@@ -162,6 +162,18 @@ const ComplaintDetail = () => {
                   <span className="text-gray-600">Category:</span>
                   <span className="font-medium">{complaint.category}</span>
                 </li>
+                {complaint.subcategoryName && (
+                  <li className="flex justify-between">
+                    <span className="text-gray-600">Subcategory:</span>
+                    <span className="font-medium">{complaint.subcategoryName}</span>
+                  </li>
+                )}
+                {complaint.problem && (
+                  <li className="flex flex-col space-y-1">
+                    <span className="text-gray-600">Problem:</span>
+                    <span className="font-medium text-right">{complaint.problem}</span>
+                  </li>
+                )}
                 <li className="flex justify-between">
                   <span className="text-gray-600">Priority:</span>
                   <span className="font-medium">

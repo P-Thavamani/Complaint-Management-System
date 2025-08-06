@@ -12,6 +12,29 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   
+  // Fetch user profile data from the server
+  const fetchUserProfile = async () => {
+    try {
+      const response = await axios.get('/api/users/profile');
+      // Merge the profile data with the basic user data
+      setUser(prevUser => ({
+        ...prevUser,
+        ...response.data
+      }));
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      if (error.response && error.response.status === 401) {
+        // Unauthorized, token might be invalid
+        logout();
+      } else {
+        // For other errors, don't logout but return null and show error
+        toast.error('Failed to load profile data. Please try again later.');
+      }
+      return null;
+    }
+  };
+
   // Check if user is already logged in on component mount
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -23,18 +46,29 @@ export const AuthProvider = ({ children }) => {
         if (decoded.exp < currentTime) {
           // Token expired, log out user
           logout();
+          setLoading(false);
         } else {
-          // Set user from token
+          // Set basic user data from token
           setUser(decoded);
           // Set authorization header for all requests
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          // Fetch complete user profile data
+          fetchUserProfile()
+            .then(() => {
+              setLoading(false);
+            })
+            .catch(() => {
+              setLoading(false);
+            });
         }
       } catch (error) {
         console.error('Invalid token:', error);
         logout();
+        setLoading(false);
       }
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   // Login function
@@ -97,6 +131,18 @@ export const AuthProvider = ({ children }) => {
     return user && user.role === 'admin';
   };
 
+  // Update user data after profile changes
+  const updateUser = (userData) => {
+    // Update the user state with the new data
+    setUser(prevUser => ({
+      ...prevUser,
+      name: userData.name,
+      phone: userData.phone,
+      department: userData.department,
+      updatedAt: userData.updatedAt
+    }));
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
@@ -104,7 +150,9 @@ export const AuthProvider = ({ children }) => {
       login, 
       register, 
       logout,
-      isAdmin
+      isAdmin,
+      updateUser,
+      fetchUserProfile
     }}>
       {children}
     </AuthContext.Provider>
