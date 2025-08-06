@@ -29,7 +29,7 @@ const Home = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Feature 1 */}
-            <div className="card text-center hover:shadow-lg transition-shadow duration-300">
+            <Link to="/dashboard" className="card text-center hover:shadow-lg transition-shadow duration-300">
               <div className="rounded-full bg-primary-100 p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -39,10 +39,10 @@ const Home = () => {
               <p className="text-gray-600">
                 Our intelligent chatbot understands natural language, responds to FAQs, and handles voice commands and image uploads.
               </p>
-            </div>
+            </Link>
             
             {/* Feature 2 */}
-            <div className="card text-center hover:shadow-lg transition-shadow duration-300">
+            <Link to="/dashboard" className="card text-center hover:shadow-lg transition-shadow duration-300">
               <div className="rounded-full bg-primary-100 p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -52,10 +52,10 @@ const Home = () => {
               <p className="text-gray-600">
                 Automatically logs, categorizes, prioritizes, and assigns tickets to the appropriate team based on AI analysis.
               </p>
-            </div>
+            </Link>
             
             {/* Feature 3 */}
-            <div className="card text-center hover:shadow-lg transition-shadow duration-300">
+            <Link to="/dashboard" className="card text-center hover:shadow-lg transition-shadow duration-300">
               <div className="rounded-full bg-primary-100 p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -65,7 +65,7 @@ const Home = () => {
               <p className="text-gray-600">
                 Track your complaint progress in real-time with status updates and notifications at each stage of resolution.
               </p>
-            </div>
+            </Link>
           </div>
         </div>
       </section>
@@ -77,7 +77,7 @@ const Home = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Text Input */}
-            <div className="card hover:shadow-lg transition-shadow duration-300">
+            <Link to="/dashboard" className="card hover:shadow-lg transition-shadow duration-300">
               <div className="flex items-center mb-4">
                 <div className="rounded-full bg-blue-100 p-3 mr-4">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -89,10 +89,10 @@ const Home = () => {
               <p className="text-gray-600">
                 Type your complaint directly into our chatbot interface. Our NLP system will understand your issue and provide immediate assistance.
               </p>
-            </div>
+            </Link>
             
             {/* Voice Input */}
-            <div className="card hover:shadow-lg transition-shadow duration-300">
+            <Link to="/dashboard" className="card hover:shadow-lg transition-shadow duration-300">
               <div className="flex items-center mb-4">
                 <div className="rounded-full bg-green-100 p-3 mr-4">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -104,10 +104,10 @@ const Home = () => {
               <p className="text-gray-600">
                 Simply speak your complaint using our voice input feature. Google Speech-to-Text converts your voice to text for processing.
               </p>
-            </div>
+            </Link>
             
             {/* Image Input */}
-            <div className="card hover:shadow-lg transition-shadow duration-300">
+            <Link to="/dashboard" className="card hover:shadow-lg transition-shadow duration-300">
               <div className="flex items-center mb-4">
                 <div className="rounded-full bg-purple-100 p-3 mr-4">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -119,7 +119,7 @@ const Home = () => {
               <p className="text-gray-600">
                 Upload images of the issue you're facing. Our YOLOv8 model will analyze the images to detect and categorize the problem.
               </p>
-            </div>
+            </Link>
           </div>
         </div>
       </section>

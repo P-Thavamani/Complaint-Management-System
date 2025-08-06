@@ -48,7 +48,7 @@ const Navbar = () => {
           {/* User Menu or Login/Register Buttons */}
           <div className="flex items-center">
             {user ? (
-              <div className="relative group">
+              <div className="relative group z-20">
                 <button className="flex items-center space-x-2 focus:outline-none">
                   <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-semibold">
                     {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
@@ -58,7 +58,7 @@ const Navbar = () => {
                     <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
                 </button>
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-300">
                   <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     Profile
                   </Link>

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axios from '../../services/axios';
 import { toast } from 'react-toastify';
 import Chatbot from '../chatbot/Chatbot';
 
@@ -9,10 +9,40 @@ const ComplaintForm = () => {
   const [formData, setFormData] = useState({
     subject: '',
     description: '',
-    category: 'general', // default category
+    category: 'billing', // default category
+    subcategory: ''
   });
   const [showChatbot, setShowChatbot] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categories, setCategories] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [subcategories, setSubcategories] = useState({});
+  
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get('/api/categories');
+        setCategories(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        toast.error('Failed to load categories. Please try again.');
+        setLoading(false);
+      }
+    };
+    
+    fetchCategories();
+  }, []);
+  
+  // Update subcategories when category changes
+  useEffect(() => {
+    if (formData.category && categories[formData.category]) {
+      setSubcategories(categories[formData.category].subcategories);
+    } else {
+      setSubcategories({});
+    }
+  }, [formData.category, categories]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -26,8 +56,25 @@ const ComplaintForm = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    // Validate subcategory if category is selected
+    if (formData.category && !formData.subcategory && Object.keys(subcategories).length > 0) {
+      toast.warning('Please select a subcategory');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      const response = await axios.post('/api/complaints', formData);
+      // Get the subcategory details if selected
+      let complaintData = { ...formData };
+      
+      // Add subcategory details if available
+      if (formData.subcategory && subcategories[formData.subcategory]) {
+        const subcategoryDetails = subcategories[formData.subcategory];
+        complaintData.subcategoryName = subcategoryDetails.name;
+        complaintData.problem = subcategoryDetails.problem;
+      }
+      
+      const response = await axios.post('/api/complaints', complaintData);
       toast.success('Complaint submitted successfully!');
       navigate(`/complaint/${response.data._id}`);
     } catch (error) {
@@ -82,12 +129,34 @@ const ComplaintForm = () => {
                 value={formData.category}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                disabled={loading}
               >
-                <option value="general">General</option>
-                <option value="technical">Technical</option>
-                <option value="service">Service</option>
-                <option value="billing">Billing</option>
-                <option value="other">Other</option>
+                {loading ? (
+                  <option value="">Loading categories...</option>
+                ) : (
+                  Object.entries(categories).map(([id, category]) => (
+                    <option key={id} value={id}>{category.name}</option>
+                  ))
+                )}
+              </select>
+            </div>
+            
+            <div>
+              <label htmlFor="subcategory" className="block text-sm font-medium text-gray-700 mb-1">
+                Subcategory
+              </label>
+              <select
+                id="subcategory"
+                name="subcategory"
+                value={formData.subcategory}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                disabled={loading || Object.keys(subcategories).length === 0}
+              >
+                <option value="">Select a subcategory</option>
+                {Object.entries(subcategories).map(([id, subcategory]) => (
+                  <option key={id} value={id}>{subcategory.name}</option>
+                ))}
               </select>
             </div>
 

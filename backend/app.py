@@ -10,6 +10,7 @@ from api.complaints import complaints_bp
 from api.admin import admin_bp
 from api.chatbot import chatbot_bp
 from api.users import users_bp
+from api.categories import categories_bp
 
 
 # Load environment variables
@@ -18,8 +19,14 @@ load_dotenv()
 # Initialize Flask app
 app = Flask(__name__)
 
-# Configure CORS
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+# Configure CORS with support for preflight requests
+CORS(app, 
+     resources={r"/api/*": {
+         "origins": "http://localhost:3000",
+         "allow_headers": ["Content-Type", "Authorization"],
+         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+     }}, 
+     supports_credentials=True)
 
 # MongoDB connection
 MONGO_URI = os.getenv('MONGO_URI')
@@ -46,6 +53,7 @@ app.register_blueprint(complaints_bp, url_prefix='/api/complaints')
 app.register_blueprint(admin_bp, url_prefix='/api/admin')
 app.register_blueprint(chatbot_bp, url_prefix='/api/chatbot')
 app.register_blueprint(users_bp, url_prefix='/api/users')
+app.register_blueprint(categories_bp, url_prefix='/api/categories')
 
 # Root route
 @app.route('/')
