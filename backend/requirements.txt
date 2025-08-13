@@ -1,0 +1,22 @@
+flask
+flask-cors
+python-dotenv
+pymongo
+passlib
+pyjwt
+gunicorn
+python-multipart
+requests
+numpy
+ultralytics
+SpeechRecognition
+pydub
+sentencepiece
+protobuf
+google-generativeai
+# Email support
+flask-mail
+# WhatsApp integration
+twilio
+# Scheduling support
+apscheduler
