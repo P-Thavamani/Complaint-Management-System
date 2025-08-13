@@ -21,7 +21,11 @@ const AdminRoute = ({ children }) => {
 
   // Redirect to dashboard if not admin
   if (!isAdmin()) {
+<<<<<<< HEAD
     return <Navigate to="/dashboard" replace />; 
+=======
+    return <Navigate to="/dashboard" replace />;
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
   }
 
   // Render children if authenticated and admin

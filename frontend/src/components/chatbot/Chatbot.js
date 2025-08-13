@@ -1,14 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
+<<<<<<< HEAD
 import { v4 as uuidv4 } from 'uuid';
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
 import axios from '../../services/axios';
 import { toast } from 'react-toastify';
 import ChatMessage from './ChatMessage';
 import VoiceInput from './VoiceInput';
 import ImageUpload from './ImageUpload';
 import { useAI } from '../hooks/useAI';
+<<<<<<< HEAD
 import OptionButton from './OptionButton';
 
 const Chatbot = ({ onClose, notifications = [] }) => {
+=======
+
+const Chatbot = ({ onClose }) => {
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
   // Initialize with default welcome message
   const [messages, setMessages] = useState([{
     type: 'bot',
@@ -17,6 +25,7 @@ const Chatbot = ({ onClose, notifications = [] }) => {
     options: []
   }]);
   
+<<<<<<< HEAD
   // Process notifications and add them to messages
   useEffect(() => {
     if (notifications && notifications.length > 0) {
@@ -49,6 +58,8 @@ const Chatbot = ({ onClose, notifications = [] }) => {
     }
   }, [notifications]);
   
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
   // Input state and refs
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -141,6 +152,7 @@ const Chatbot = ({ onClose, notifications = [] }) => {
     
     try {
       console.log('Selected option:', optionId, optionText);
+<<<<<<< HEAD
       
       // Check if this is a view status request
       if (optionId.startsWith('view_status_')) {
@@ -207,6 +219,8 @@ const Chatbot = ({ onClose, notifications = [] }) => {
         return; // Exit early
       }
       
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
       console.log('Available categories:', complaintCategories);
       
       // Check if this is a main category or subcategory
@@ -217,6 +231,7 @@ const Chatbot = ({ onClose, notifications = [] }) => {
       console.log('Main category:', mainCategory);
       console.log('Subcategory:', subCategory);
       
+<<<<<<< HEAD
       // Handle special options first
       if (optionId === 'open_ticket') {
         // Show ticket form with enhanced instructions
@@ -338,11 +353,18 @@ const Chatbot = ({ onClose, notifications = [] }) => {
       }
       
       // Process the selected option as a category
+=======
+      // Process the selected option
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
       const category = mainCategory; // Use the main category ID
       const priority = category === 'technical' || category === 'service' ? 'high' : 'medium';
       
       // If this is a main category, show subcategories
+<<<<<<< HEAD
       if (isMainCategory && complaintCategories[mainCategory]) {
+=======
+      if (isMainCategory) {
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
         const categoryData = complaintCategories[mainCategory];
         const subcategories = categoryData.subcategories;
         
@@ -362,7 +384,11 @@ const Chatbot = ({ onClose, notifications = [] }) => {
         };
         
         setMessages(prev => [...prev, botResponse]);
+<<<<<<< HEAD
       } else if (!isMainCategory && complaintCategories[mainCategory] && complaintCategories[mainCategory].subcategories && complaintCategories[mainCategory].subcategories[subCategory]) {
+=======
+      } else {
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
         // This is a subcategory selection
         const categoryData = complaintCategories[mainCategory];
         const subcategoryData = categoryData.subcategories[subCategory];
@@ -414,6 +440,7 @@ If the provided solution does not work, you can click "Open Ticket" to get help 
         }
       }
       
+<<<<<<< HEAD
       // Special options are now handled at the beginning of the function
       if (optionId === 'submit-ticket') {
         // Create a ticket with the current category and priority
@@ -485,6 +512,32 @@ If the provided solution does not work, you can click "Open Ticket" to get help 
           
           setMessages(prev => [...prev, errorMessage]);
         }
+=======
+      // Handle special options
+      if (optionId === 'open_ticket') {
+        // Show ticket form
+        const ticketFormMessage = {
+          type: 'bot',
+          content: 'Please provide additional details about your issue:',
+          timestamp: new Date(),
+          isTicketForm: true
+        };
+        
+        setMessages(prev => [...prev, ticketFormMessage]);
+      } else if (optionId === 'solved') {
+        // Thank the user
+        const thankYouMessage = {
+          type: 'bot',
+          content: 'Great! I\'m glad the solution helped. Is there anything else I can assist you with?',
+          timestamp: new Date(),
+          options: Object.entries(complaintCategories).map(([id, category]) => ({
+            id: id,
+            text: category.name
+          }))
+        };
+        
+        setMessages(prev => [...prev, thankYouMessage]);
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
       }
     } catch (error) {
       console.error('Error processing option:', error);

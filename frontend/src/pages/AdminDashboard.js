@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
+<<<<<<< HEAD
 import axios from '../services/axios';
+=======
+import axios from 'axios';
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
 
+<<<<<<< HEAD
 // Feedback Management Component
 const FeedbackManagement = () => {
   const [feedback, setFeedback] = useState([]);
@@ -104,10 +109,13 @@ const FeedbackManagement = () => {
   );
 };
 
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
 // Register ChartJS components
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const AdminDashboard = () => {
+<<<<<<< HEAD
 
   // Function to handle complaint deletion
   const handleDeleteComplaint = async (complaintId) => {
@@ -125,42 +133,62 @@ const AdminDashboard = () => {
     }
   };
 
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
   const [complaints, setComplaints] = useState([]);
   const [stats, setStats] = useState({
     total: 0,
     pending: 0,
     inProgress: 0,
     resolved: 0,
+<<<<<<< HEAD
     escalated: 0,
     userCount: 0,
     avgResolutionTime: 0
+=======
+    escalated: 0
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
   });
   const [categoryStats, setCategoryStats] = useState({});
   const [timelineStats, setTimelineStats] = useState([]);
   const [loading, setLoading] = useState(true);
+<<<<<<< HEAD
   const [escalationLoading, setEscalationLoading] = useState(false);
   const [showEscalationModal, setShowEscalationModal] = useState(false);
   const [escalatedComplaints, setEscalatedComplaints] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterPriority, setFilterPriority] = useState('all');
+=======
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState('desc');
 
   useEffect(() => {
+<<<<<<< HEAD
     const fetchData = async () => { 
         try {
+=======
+    const fetchData = async () => {
+      try {
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
         // Fetch all complaints
         const complaintsResponse = await axios.get('/api/admin/complaints');
         setComplaints(complaintsResponse.data);
 
         // Fetch dashboard statistics
         const statsResponse = await axios.get('/api/admin/stats');
+<<<<<<< HEAD
         setStats({
           ...statsResponse.data.statusCounts,
           userCount: statsResponse.data.userCount,
           avgResolutionTime: statsResponse.data.avgResolutionTime
         });
+=======
+        setStats(statsResponse.data.statusCounts);
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
         setCategoryStats(statsResponse.data.categoryCounts);
         setTimelineStats(statsResponse.data.timeline);
       } catch (error) {
@@ -173,6 +201,7 @@ const AdminDashboard = () => {
 
     fetchData();
   }, []);
+<<<<<<< HEAD
   
   // Handle manual escalation check
   const handleEscalationCheck = async () => {
@@ -216,6 +245,8 @@ const AdminDashboard = () => {
   const closeEscalationModal = () => {
     setShowEscalationModal(false);
   };
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
 
   // Filter and sort complaints
   const filteredComplaints = complaints.filter(complaint => {
@@ -225,9 +256,14 @@ const AdminDashboard = () => {
       complaint.user?.name.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = filterStatus === 'all' || complaint.status === filterStatus;
+<<<<<<< HEAD
     const matchesPriority = filterPriority === 'all' || complaint.priority === filterPriority;
     
     return matchesSearch && matchesStatus && matchesPriority;
+=======
+    
+    return matchesSearch && matchesStatus;
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
   }).sort((a, b) => {
     if (sortBy === 'createdAt') {
       return sortOrder === 'desc' 
@@ -352,6 +388,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="py-6">
+<<<<<<< HEAD
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
         <div className="flex space-x-4">
@@ -369,6 +406,12 @@ const AdminDashboard = () => {
       
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 mb-8">
+=======
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">Admin Dashboard</h1>
+      
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
         <div className="bg-white rounded-lg shadow-md p-4">
           <h2 className="text-sm font-medium text-gray-500">Total Complaints</h2>
           <p className="text-3xl font-bold text-gray-800 mt-2">{stats.total}</p>
@@ -389,6 +432,7 @@ const AdminDashboard = () => {
           <h2 className="text-sm font-medium text-gray-500">Escalated</h2>
           <p className="text-3xl font-bold text-red-500 mt-2">{stats.escalated}</p>
         </div>
+<<<<<<< HEAD
         <div className="bg-white rounded-lg shadow-md p-4">
           <h2 className="text-sm font-medium text-gray-500">Total Users</h2>
           <p className="text-3xl font-bold text-purple-500 mt-2">{stats.userCount}</p>
@@ -433,6 +477,12 @@ const AdminDashboard = () => {
       
       {/* Charts and Feedback */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+=======
+      </div>
+      
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
         <div className="bg-white rounded-lg shadow-md p-4">
           <h2 className="text-lg font-semibold mb-4">Status Distribution</h2>
           <div className="h-64">
@@ -465,9 +515,12 @@ const AdminDashboard = () => {
             <Bar data={timelineChartData} options={timelineOptions} />
           </div>
         </div>
+<<<<<<< HEAD
         <div className="lg:col-span-1">
           <FeedbackManagement />
         </div>
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
       </div>
       
       {/* Complaints Table */}
@@ -500,6 +553,7 @@ const AdminDashboard = () => {
               </select>
               <select
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+<<<<<<< HEAD
                 value={filterPriority}
                 onChange={(e) => setFilterPriority(e.target.value)}
               >
@@ -511,6 +565,8 @@ const AdminDashboard = () => {
               </select>
               <select
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
                 value={`${sortBy}-${sortOrder}`}
                 onChange={(e) => {
                   const [newSortBy, newSortOrder] = e.target.value.split('-');
@@ -568,7 +624,11 @@ const AdminDashboard = () => {
                       #{complaint._id.substring(0, 8)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+<<<<<<< HEAD
                       <Link to={`/complaint/${complaint._id}`} className="text-primary-600 hover:text-primary-800">
+=======
+                      <Link to={`/complaints/${complaint._id}`} className="text-primary-600 hover:text-primary-800">
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
                         {complaint.subject}
                       </Link>
                     </td>
@@ -601,12 +661,15 @@ const AdminDashboard = () => {
                       >
                         Manage
                       </Link>
+<<<<<<< HEAD
                       <button
                         onClick={() => handleDeleteComplaint(complaint._id)}
                         className="text-red-600 hover:text-red-900"
                       >
                         Delete
                       </button>
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
                     </td>
                   </tr>
                 ))
@@ -621,6 +684,7 @@ const AdminDashboard = () => {
           </table>
         </div>
       </div>
+<<<<<<< HEAD
       
       {/* Escalation Results Modal */}
       {showEscalationModal && (
@@ -693,6 +757,8 @@ const AdminDashboard = () => {
           </div>
         </div>
       )}
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
     </div>
   );
 };

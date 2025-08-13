@@ -71,6 +71,7 @@ const ChatMessage = ({ message, onOptionSelect }) => {
            <div className="mb-2">
              <ReactMarkdown>{message.content}</ReactMarkdown>
            </div>
+<<<<<<< HEAD
            
            {/* Description field for ticket creation */}
            {message.showDescriptionField && (
@@ -93,6 +94,8 @@ const ChatMessage = ({ message, onOptionSelect }) => {
              </div>
            )}
            
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
            <div className="mt-3 grid grid-cols-2 gap-2">
              {message.options.map((option, index) => (
                <button 
@@ -197,6 +200,7 @@ const ChatMessage = ({ message, onOptionSelect }) => {
       );
     }
 
+<<<<<<< HEAD
     // For notification messages
     if (message.isNotification) {
       return (
@@ -263,6 +267,8 @@ const ChatMessage = ({ message, onOptionSelect }) => {
       );
     }
     
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
     // For error messages
     if (message.isError) {
       return (

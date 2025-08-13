@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
+<<<<<<< HEAD
 import axios from '../services/axios';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../context/AuthContext';
@@ -7,6 +8,11 @@ import RewardsDisplay from '../components/rewards/RewardsDisplay';
 import RewardHistory from '../components/rewards/RewardHistory';
 import RewardsLeaderboard from '../components/rewards/RewardsLeaderboard';
 import FeedbackForm from '../components/feedback/FeedbackForm';
+=======
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import { AuthContext } from '../context/AuthContext';
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
 
 // Components
 import Chatbot from '../components/chatbot/Chatbot';
@@ -24,7 +30,10 @@ const Dashboard = () => {
     resolved: 0
   });
   const [chatbotOpen, setChatbotOpen] = useState(false);
+<<<<<<< HEAD
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
 
   // Fetch user complaints
   useEffect(() => {
@@ -55,15 +64,19 @@ const Dashboard = () => {
     setChatbotOpen(!chatbotOpen);
   };
 
+<<<<<<< HEAD
   const handleFeedbackSubmitted = () => {
     // Refresh rewards display after feedback submission
     // This will be handled by the RewardsDisplay component's useEffect
   };
 
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Dashboard</h1>
+<<<<<<< HEAD
         <div className="flex space-x-3">
           <button 
             onClick={() => setFeedbackModalOpen(true)}
@@ -84,16 +97,30 @@ const Dashboard = () => {
             {chatbotOpen ? 'Close Chatbot' : 'Open Chatbot'}
           </button>
         </div>
+=======
+        <button 
+          onClick={toggleChatbot}
+          className="btn-primary flex items-center"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
+          </svg>
+          {chatbotOpen ? 'Close Chatbot' : 'Open Chatbot'}
+        </button>
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
       </div>
 
       {/* Stats Cards */}
       <ComplaintStats stats={stats} />
 
+<<<<<<< HEAD
       {/* Rewards Section */}
       <div className="mb-8">
         <RewardsDisplay />
       </div>
 
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
       {/* Complaints List */}
       <div className="mt-8">
         <div className="flex justify-between items-center mb-4">
@@ -122,6 +149,7 @@ const Dashboard = () => {
         )}
       </div>
 
+<<<<<<< HEAD
       {/* Reward History and Leaderboard */}
       <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
@@ -142,6 +170,8 @@ const Dashboard = () => {
         </div>
       )}
 
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
       {/* Chatbot */}
       {chatbotOpen && (
         <div className="fixed bottom-4 right-4 z-50">

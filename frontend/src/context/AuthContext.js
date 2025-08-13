@@ -11,7 +11,11 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
   // Fetch user profile data from the server
   const fetchUserProfile = async () => {
     try {
@@ -21,7 +25,10 @@ export const AuthProvider = ({ children }) => {
         ...prevUser,
         ...response.data
       }));
+<<<<<<< HEAD
       console.log("user profile data: ", response.data)
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
       return response.data;
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -36,8 +43,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+<<<<<<< HEAD
    // Load user function
    const loadUser = async () => {
+=======
+  // Check if user is already logged in on component mount
+  useEffect(() => {
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
     const token = localStorage.getItem('token');
     if (token) {
       try {
@@ -51,6 +63,7 @@ export const AuthProvider = ({ children }) => {
         } else {
           // Set basic user data from token
           setUser(decoded);
+<<<<<<< HEAD
            // Set authorization header for all requests
            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
               // Fetch complete user profile data - only if user is not already set
@@ -62,6 +75,18 @@ export const AuthProvider = ({ children }) => {
                   setLoading(false);
                 });
           setLoading(false);
+=======
+          // Set authorization header for all requests
+          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          // Fetch complete user profile data
+          fetchUserProfile()
+            .then(() => {
+              setLoading(false);
+            })
+            .catch(() => {
+              setLoading(false);
+            });
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
         }
       } catch (error) {
         console.error('Invalid token:', error);
@@ -71,11 +96,14 @@ export const AuthProvider = ({ children }) => {
     } else {
       setLoading(false);
     }
+<<<<<<< HEAD
   };
 
   // Check if user is already logged in on component mount
   useEffect(() => {
     loadUser();
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
   }, []);
 
   // Login function
@@ -96,12 +124,16 @@ export const AuthProvider = ({ children }) => {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
       toast.success('Login successful!');
+<<<<<<< HEAD
       // Redirect based on user role
       if (decoded.is_admin) {
         navigate('/admin');
       } else {
         navigate('/dashboard');
       }
+=======
+      navigate('/dashboard');
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
       return true;
     } catch (error) {
       console.error('Login error:', error);
@@ -140,11 +172,16 @@ export const AuthProvider = ({ children }) => {
 
   // Check if user is admin
   const isAdmin = () => {
+<<<<<<< HEAD
     return user && user.is_admin === true;
+=======
+    return user && user.role === 'admin';
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
   };
 
   // Update user data after profile changes
   const updateUser = (userData) => {
+<<<<<<< HEAD
     console.log('Updating user with data:', userData);
     // Update the user state with the new data
     setUser(prevUser => {
@@ -166,6 +203,24 @@ export const AuthProvider = ({ children }) => {
       loading,
       login,
       register,
+=======
+    // Update the user state with the new data
+    setUser(prevUser => ({
+      ...prevUser,
+      name: userData.name,
+      phone: userData.phone,
+      department: userData.department,
+      updatedAt: userData.updatedAt
+    }));
+  };
+
+  return (
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      login, 
+      register, 
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
       logout,
       isAdmin,
       updateUser,

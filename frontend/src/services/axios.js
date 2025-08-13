@@ -4,7 +4,10 @@ import axios from 'axios';
 axios.defaults.baseURL = 'http://localhost:5000';
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
+<<<<<<< HEAD
 axios.defaults.timeout = 10000; // 10 seconds timeout
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
 
 // Add request interceptor for error handling
 axios.interceptors.request.use(
@@ -23,6 +26,7 @@ axios.interceptors.request.use(
 
 // Add response interceptor for error handling
 axios.interceptors.response.use(
+<<<<<<< HEAD
   response => {
     // Log successful responses for debugging
     console.log(`API Success [${response.config.method.toUpperCase()}] ${response.config.url}:`, response.status);
@@ -44,6 +48,11 @@ axios.interceptors.response.use(
       console.warn('Authentication error detected');
     }
     
+=======
+  response => response,
+  error => {
+    console.error('API Error:', error.response?.data || error.message);
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
     return Promise.reject(error);
   }
 );

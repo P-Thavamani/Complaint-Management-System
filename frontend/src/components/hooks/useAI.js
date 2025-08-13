@@ -31,6 +31,7 @@ export const useAI = () => {
     }
   };
 
+<<<<<<< HEAD
   // Function to categorize complaint based on content with enhanced keyword matching
   const categorizeComplaint = (message) => {
     // Categories with their related keywords - expanded for better matching
@@ -40,11 +41,23 @@ export const useAI = () => {
       network: ['network', 'internet', 'wifi', 'connection', 'server', 'down', 'slow', 'access', 'connectivity', 'router', 'modem', 'ethernet', 'wireless', 'signal', 'strength', 'speed', 'bandwidth', 'latency', 'ping', 'dns', 'ip address', 'vpn', 'proxy', 'firewall', 'security'],
       service: ['service', 'support', 'help', 'assistance', 'response', 'delay', 'waiting', 'customer service', 'representative', 'agent', 'staff', 'employee', 'manager', 'supervisor', 'escalation', 'resolution', 'solution', 'follow-up', 'callback', 'appointment', 'schedule', 'booking', 'reservation', 'cancellation'],
       billing: ['bill', 'invoice', 'payment', 'charge', 'subscription', 'pricing', 'cost', 'fee', 'overcharge', 'refund', 'credit', 'debit', 'transaction', 'receipt', 'statement', 'account', 'balance', 'due date', 'late fee', 'discount', 'promotion', 'coupon', 'plan', 'package', 'upgrade', 'downgrade', 'cancel']
+=======
+  // Function to categorize complaint based on content
+  const categorizeComplaint = (message) => {
+    // Categories with their related keywords
+    const categories = {
+      hardware: ['computer', 'laptop', 'printer', 'device', 'hardware', 'monitor', 'keyboard', 'mouse', 'broken', 'damaged'],
+      software: ['software', 'program', 'application', 'app', 'system', 'bug', 'error', 'crash', 'freezing', 'slow'],
+      network: ['network', 'internet', 'wifi', 'connection', 'server', 'down', 'slow', 'access', 'connectivity'],
+      service: ['service', 'support', 'help', 'assistance', 'response', 'delay', 'waiting', 'customer service'],
+      billing: ['bill', 'invoice', 'payment', 'charge', 'subscription', 'pricing', 'cost', 'fee', 'overcharge']
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
     };
     
     // Convert message to lowercase for case-insensitive matching
     const lowerMessage = message.toLowerCase();
     
+<<<<<<< HEAD
     // Count matches for each category to find the best match
     let bestCategory = 'other';
     let highestMatchCount = 0;
@@ -70,11 +83,33 @@ export const useAI = () => {
       high: ['high', 'important', 'priority', 'significant', 'major', 'crucial', 'essential', 'necessary', 'required', 'vital', 'key', 'primary', 'main', 'central', 'core', 'fundamental', 'pressing', 'urgent but not emergency', 'as soon as possible', 'affecting work', 'productivity impact', 'customer facing', 'client', 'deadline approaching', 'tomorrow', 'this week'],
       medium: ['medium', 'moderate', 'average', 'standard', 'normal', 'regular', 'common', 'typical', 'usual', 'ordinary', 'conventional', 'routine', 'everyday', 'general', 'soon', 'when convenient', 'next few days', 'this month', 'partial functionality', 'workaround available', 'alternative solution'],
       low: ['low', 'minor', 'trivial', 'small', 'not urgent', 'when possible', 'minimal', 'insignificant', 'negligible', 'slight', 'little', 'marginal', 'secondary', 'auxiliary', 'supplementary', 'whenever', 'no rush', 'no hurry', 'take your time', 'eventually', 'someday', 'cosmetic issue', 'enhancement', 'nice to have', 'improvement suggestion']
+=======
+    // Check each category for keyword matches
+    for (const [category, keywords] of Object.entries(categories)) {
+      if (keywords.some(keyword => lowerMessage.includes(keyword))) {
+        return category;
+      }
+    }
+    
+    // Default category if no matches found
+    return 'other';
+  };
+
+  // Function to determine priority based on message content
+  const determinePriority = (message) => {
+    // Priority keywords
+    const priorities = {
+      urgent: ['urgent', 'emergency', 'immediate', 'critical', 'asap', 'serious', 'severe', 'outage'],
+      high: ['high', 'important', 'priority', 'significant', 'major', 'crucial'],
+      medium: ['medium', 'moderate', 'average', 'standard', 'normal'],
+      low: ['low', 'minor', 'trivial', 'small', 'not urgent', 'when possible']
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
     };
     
     // Convert message to lowercase for case-insensitive matching
     const lowerMessage = message.toLowerCase();
     
+<<<<<<< HEAD
     // Count matches for each priority level to determine the best match
     let priorityScores = {
       urgent: 0,
@@ -105,6 +140,19 @@ export const useAI = () => {
     
     // If no keywords matched or all scores are 0, return medium as default
     return highestScore > 0 ? highestPriority : 'medium';
+=======
+    // Check for priority keywords
+    if (priorities.urgent.some(keyword => lowerMessage.includes(keyword))) {
+      return 'urgent';
+    } else if (priorities.high.some(keyword => lowerMessage.includes(keyword))) {
+      return 'high';
+    } else if (priorities.low.some(keyword => lowerMessage.includes(keyword))) {
+      return 'low';
+    }
+    
+    // Default priority
+    return 'medium';
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
   };
 
   // Function to determine the best team/agent for assignment
