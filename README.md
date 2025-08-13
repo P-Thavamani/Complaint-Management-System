@@ -68,12 +68,22 @@ A comprehensive complaint management solution with AI-powered chatbot integratio
     └── requirements.txt
 ```
 
-## Setup Instructions
+## Development Setup
+
+For development, follow these steps:
+
+1. Clone the repository
+2. Install dependencies for both frontend and backend
+3. Set up MongoDB Atlas (cloud database)
+4. Configure environment variables
+5. Run the application
+
+Detailed instructions can be found in [CLOUD_SETUP.md](CLOUD_SETUP.md).
 
 ### Prerequisites
 - Node.js (v14+)
 - Python (v3.8+)
-- MongoDB
+- MongoDB Atlas account
 
 ### Frontend Setup
 
@@ -115,13 +125,14 @@ python app.py
 Create a `.env` file in the backend directory with the following variables:
 
 ```
-MONGO_URI=mongodb://localhost:27017/complaint_system
+MONGO_URI=mongodb+srv://your_username:your_password@your_cluster.mongodb.net/complaint_system?retryWrites=true&w=majority
 SECRET_KEY=your_secret_key_here
 FLASK_ENV=development
 GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
-To get a Gemini API key, visit [Google AI Studio](https://makersuite.google.com/app/apikey) and create a new API key.
+- For MongoDB Atlas, create an account at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register), set up a cluster, create a database user, and get your connection string.
+- To get a Gemini API key, visit [Google AI Studio](https://makersuite.google.com/app/apikey) and create a new API key.
 
 ## Usage
 

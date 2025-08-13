@@ -1,12 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
+<<<<<<< HEAD
+import { v4 as uuidv4 } from 'uuid';
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
 import axios from '../../services/axios';
 import { toast } from 'react-toastify';
 import ChatMessage from './ChatMessage';
 import VoiceInput from './VoiceInput';
 import ImageUpload from './ImageUpload';
 import { useAI } from '../hooks/useAI';
+<<<<<<< HEAD
+import OptionButton from './OptionButton';
+
+const Chatbot = ({ onClose, notifications = [] }) => {
+=======
 
 const Chatbot = ({ onClose }) => {
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
   // Initialize with default welcome message
   const [messages, setMessages] = useState([{
     type: 'bot',
@@ -15,6 +25,41 @@ const Chatbot = ({ onClose }) => {
     options: []
   }]);
   
+<<<<<<< HEAD
+  // Process notifications and add them to messages
+  useEffect(() => {
+    if (notifications && notifications.length > 0) {
+      // Get only new notifications that haven't been added to messages yet
+      const existingNotificationIds = messages
+        .filter(msg => msg.isNotification)
+        .map(msg => msg.complaintId);
+      
+      const newNotifications = notifications
+        .filter(notif => !existingNotificationIds.includes(notif.complaintId));
+      
+      if (newNotifications.length > 0) {
+        // Add notifications as bot messages
+        const notificationMessages = newNotifications.map(notification => ({
+          type: 'bot',
+          content: `**Update on Ticket #${notification.ticketNumber}**: ${notification.message}`,
+          timestamp: new Date(notification.updatedAt),
+          isNotification: true,
+          complaintId: notification.complaintId,
+          ticketNumber: notification.ticketNumber,
+          status: notification.status,
+          options: [
+            { id: `view_status_${notification.complaintId}`, text: 'View Status' },
+            { id: 'solved', text: 'Mark as Resolved' }
+          ]
+        }));
+        
+        setMessages(prev => [...prev, ...notificationMessages]);
+      }
+    }
+  }, [notifications]);
+  
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
   // Input state and refs
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -107,6 +152,75 @@ const Chatbot = ({ onClose }) => {
     
     try {
       console.log('Selected option:', optionId, optionText);
+<<<<<<< HEAD
+      
+      // Check if this is a view status request
+      if (optionId.startsWith('view_status_')) {
+        const complaintId = optionId.replace('view_status_', '');
+        try {
+          // Fetch the complaint status from the API
+          const response = await axios.get(`/api/complaint-updates/status/${complaintId}`);
+          const statusData = response.data;
+          
+          // Format the status message
+          let statusMessage = `**Ticket #${statusData.ticketNumber} Status**\n\n`;
+          statusMessage += `**Subject:** ${statusData.subject}\n`;
+          statusMessage += `**Status:** ${statusData.status}\n`;
+          statusMessage += `**Priority:** ${statusData.priority}\n`;
+          statusMessage += `**Category:** ${statusData.category}\n`;
+          statusMessage += `**Created:** ${new Date(statusData.createdAt).toLocaleString()}\n`;
+          
+          // Add assigned agent info if available
+          if (statusData.assignedTo) {
+            statusMessage += `**Assigned To:** ${statusData.assignedTo.name}\n`;
+          }
+          
+          // Add estimated resolution time
+          if (statusData.estimatedResolutionTime) {
+            statusMessage += `**Estimated Resolution:** ${new Date(statusData.estimatedResolutionTime).toLocaleString()}\n`;
+          }
+          
+          // Add status-specific information
+          if (statusData.status === 'in-progress' && statusData.inProgressAt) {
+            statusMessage += `\nYour complaint is being processed since ${new Date(statusData.inProgressAt).toLocaleString()}.`;
+          } else if (statusData.status === 'resolved' && statusData.resolvedAt) {
+            statusMessage += `\nYour complaint was resolved on ${new Date(statusData.resolvedAt).toLocaleString()}.`;
+          } else if (statusData.status === 'escalated' && statusData.escalatedAt) {
+            statusMessage += `\nYour complaint was escalated on ${new Date(statusData.escalatedAt).toLocaleString()}.`;
+          }
+          
+          // Add the status message to the chat
+          const statusResponseMessage = {
+            type: 'bot',
+            content: statusMessage,
+            timestamp: new Date(),
+            isStatus: true,
+            complaintId: complaintId,
+            options: [
+              { id: `mark_as_resolved_${complaintId}`, text: 'Mark as Resolved' },
+              { id: 'open_ticket', text: 'Open New Ticket' }
+            ]
+          };
+          
+          setMessages(prev => [...prev, statusResponseMessage]);
+        } catch (error) {
+          console.error('Error fetching complaint status:', error);
+          // Add error message
+          const errorMessage = {
+            type: 'bot',
+            content: 'Sorry, I couldn\'t retrieve the status of your complaint. Please try again later.',
+            timestamp: new Date(),
+            isError: true
+          };
+          
+          setMessages(prev => [...prev, errorMessage]);
+        }
+        setIsLoading(false);
+        return; // Exit early
+      }
+      
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
       console.log('Available categories:', complaintCategories);
       
       // Check if this is a main category or subcategory
@@ -117,12 +231,140 @@ const Chatbot = ({ onClose }) => {
       console.log('Main category:', mainCategory);
       console.log('Subcategory:', subCategory);
       
+<<<<<<< HEAD
+      // Handle special options first
+      if (optionId === 'open_ticket') {
+        // Show ticket form with enhanced instructions
+        const ticketFormMessage = {
+          type: 'bot',
+          content: 'Please provide additional details about your issue in the text box below. Be specific about what you\'re experiencing to help us resolve your issue faster:',
+          timestamp: new Date(),
+          isTicketForm: true,
+          showDescriptionField: true, // Flag to show description field
+          options: [{ id: 'submit-ticket', text: 'Submit Ticket' }] // Add submit button
+        };
+        
+        // Clear any existing description
+        window.issueDescription = null;
+        
+        setMessages(prev => [...prev, ticketFormMessage]);
+        return; // Exit early to avoid processing as a category
+      } else if (optionId === 'solved') {
+        try {
+          // Call the backend to register the issue as solved and send notifications
+          const response = await axios.post('/api/chatbot/issue-solved', {}, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          });
+          
+          // Show thank you popup if indicated by the backend
+          if (response.data.showThankYouPopup) {
+            toast.success('Thank you for using our service! A confirmation has been sent to your email.', {
+              position: "top-center",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              style: {
+                background: '#4f46e5',
+                color: '#ffffff',
+                borderRadius: '10px',
+                padding: '16px',
+                fontSize: '16px'
+              },
+            });
+          }
+          
+          // Thank the user in the chat with an enhanced message
+          const thankYouMessage = {
+            type: 'bot',
+            content: 'Thank you for using our service! We appreciate your feedback and are glad the solution helped resolve your issue. Your satisfaction is our priority. Is there anything else I can assist you with today?',
+            timestamp: new Date(),
+            options: Object.entries(complaintCategories).map(([id, category]) => ({
+              id: id,
+              text: category.name
+            }))
+          };
+          
+          setMessages(prev => [...prev, thankYouMessage]);
+          return; // Exit early to avoid processing as a category
+        } catch (error) {
+          console.error('Error processing solved status:', error);
+          // Add error message
+          const errorMessage = {
+            type: 'bot',
+            content: 'Sorry, there was an error processing your response. Please try again later.',
+            timestamp: new Date(),
+            isError: true
+          };
+          
+          setMessages(prev => [...prev, errorMessage]);
+          return; // Exit early to avoid processing as a category
+        } finally {
+          // This finally block ensures the code continues even if there's an error
+          // It's empty because we're handling loading state in the outer try-finally
+        }
+      } else if (optionId.startsWith('mark_as_resolved_')) {
+        // Handle 'Mark as Resolved' for a specific complaint
+        const complaintId = optionId.replace('mark_as_resolved_', '');
+        setIsLoading(true);
+        
+        try {
+          // Call the API to mark the specific complaint as resolved
+          const response = await axios.post(`/api/complaint-updates/resolve/${complaintId}`, {}, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          });
+          
+          // Show success message if the complaint was resolved
+          toast.success('Complaint marked as resolved successfully!');
+          
+          // Add confirmation message to chat
+          const confirmationMessage = {
+            id: uuidv4(),
+            text: 'Thank you! Your complaint has been marked as resolved. We appreciate your feedback and are glad we could help resolve your issue.',
+            sender: 'bot',
+            timestamp: new Date().toISOString(),
+            options: Object.entries(complaintCategories).map(([id, category]) => ({
+              id: id,
+              text: category.name
+            }))
+          };
+          
+          setMessages(prevMessages => [...prevMessages, confirmationMessage]);
+        } catch (error) {
+          console.error('Error marking complaint as resolved:', error);
+          
+          // Add error message to chat
+          const errorMessage = {
+            id: uuidv4(),
+            text: 'Sorry, I couldn\'t mark your complaint as resolved. Please try again later.',
+            sender: 'bot',
+            timestamp: new Date().toISOString(),
+            isError: true
+          };
+          
+          setMessages(prevMessages => [...prevMessages, errorMessage]);
+          toast.error('Failed to mark complaint as resolved');
+        } finally {
+          setIsLoading(false);
+        }
+        return; // Exit early
+      }
+      
+      // Process the selected option as a category
+=======
       // Process the selected option
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
       const category = mainCategory; // Use the main category ID
       const priority = category === 'technical' || category === 'service' ? 'high' : 'medium';
       
       // If this is a main category, show subcategories
+<<<<<<< HEAD
+      if (isMainCategory && complaintCategories[mainCategory]) {
+=======
       if (isMainCategory) {
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
         const categoryData = complaintCategories[mainCategory];
         const subcategories = categoryData.subcategories;
         
@@ -142,7 +384,11 @@ const Chatbot = ({ onClose }) => {
         };
         
         setMessages(prev => [...prev, botResponse]);
+<<<<<<< HEAD
+      } else if (!isMainCategory && complaintCategories[mainCategory] && complaintCategories[mainCategory].subcategories && complaintCategories[mainCategory].subcategories[subCategory]) {
+=======
       } else {
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
         // This is a subcategory selection
         const categoryData = complaintCategories[mainCategory];
         const subcategoryData = categoryData.subcategories[subCategory];
@@ -194,6 +440,79 @@ If the provided solution does not work, you can click "Open Ticket" to get help 
         }
       }
       
+<<<<<<< HEAD
+      // Special options are now handled at the beginning of the function
+      if (optionId === 'submit-ticket') {
+        // Create a ticket with the current category and priority
+        try {
+          // Get the current category and priority from the last message
+          const lastMessage = messages[messages.length - 2]; // Get the user's message before the form
+          const category = lastMessage.category || lastMessage.selectedCategory || 'general';
+          
+          // Get the description from the textarea
+          const description = window.issueDescription || '';
+          
+          if (!description || description.trim() === '') {
+            // Show error message if description is empty
+            const errorMessage = {
+              type: 'bot',
+              content: 'Please provide a description of your issue before submitting the ticket.',
+              timestamp: new Date(),
+              isError: true,
+              showDescriptionField: true, // Keep showing the description field
+              options: [{ id: 'submit-ticket', text: 'Submit Ticket' }] // Keep the submit button
+            };
+            
+            setMessages(prev => [...prev, errorMessage]);
+            return;
+          }
+          
+          // Determine priority based on the description
+          const priority = determinePriority(description);
+          
+          // Create the ticket with AI-determined priority
+          const response = await axios.post('/api/chatbot/create-ticket', {
+            subject: `${category} issue`,
+            description: description,
+            category: category,
+            priority: priority,
+            imageUrl: lastMessage.imageUrl,
+            detectedObjects: lastMessage.detectedObjects
+          });
+          
+          // Reset the global description variable
+          window.issueDescription = null;
+          
+          // Add success message
+          const successMessage = {
+            type: 'bot',
+            content: `Your ticket has been created successfully!`,
+            timestamp: new Date(),
+            ticketCreated: true,
+            ticketId: response.data.ticketNumber
+          };
+          
+          setMessages(prev => [...prev, successMessage]);
+          
+          // Show success toast
+          toast.success('Ticket created successfully!', {
+            position: "top-right",
+            autoClose: 3000
+          });
+        } catch (error) {
+          console.error('Error creating ticket:', error);
+          
+          // Add error message
+          const errorMessage = {
+            type: 'bot',
+            content: `Sorry, there was an error creating your ticket. Please try again later.`,
+            timestamp: new Date(),
+            isError: true
+          };
+          
+          setMessages(prev => [...prev, errorMessage]);
+        }
+=======
       // Handle special options
       if (optionId === 'open_ticket') {
         // Show ticket form
@@ -218,6 +537,7 @@ If the provided solution does not work, you can click "Open Ticket" to get help 
         };
         
         setMessages(prev => [...prev, thankYouMessage]);
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
       }
     } catch (error) {
       console.error('Error processing option:', error);

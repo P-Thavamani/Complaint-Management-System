@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
+<<<<<<< HEAD
+import axios from '../../services/axios';
+=======
 import axios from 'axios';
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
 
 const VoiceInput = ({ onTranscript, onCancel }) => {
   const [isRecording, setIsRecording] = useState(false);

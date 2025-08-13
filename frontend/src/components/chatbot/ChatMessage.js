@@ -71,6 +71,31 @@ const ChatMessage = ({ message, onOptionSelect }) => {
            <div className="mb-2">
              <ReactMarkdown>{message.content}</ReactMarkdown>
            </div>
+<<<<<<< HEAD
+           
+           {/* Description field for ticket creation */}
+           {message.showDescriptionField && (
+             <div className="mb-3">
+               <label htmlFor="issueDescription" className="block text-sm font-medium text-gray-700 mb-1">
+                 Issue Description <span className="text-red-500">*</span>
+               </label>
+               <textarea
+                 id="issueDescription"
+                 className="w-full p-3 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500 shadow-sm"
+                 rows="4"
+                 placeholder="Please describe your issue in detail. Include any error messages, when the issue started, and steps to reproduce it..."
+                 onChange={(e) => {
+                   // Store the description in a global variable or state that can be accessed when submitting the ticket
+                   window.issueDescription = e.target.value;
+                 }}
+                 defaultValue={window.issueDescription || ''}
+               ></textarea>
+               <p className="text-xs text-gray-500 mt-1">Your detailed description helps us categorize and prioritize your issue appropriately.</p>
+             </div>
+           )}
+           
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
            <div className="mt-3 grid grid-cols-2 gap-2">
              {message.options.map((option, index) => (
                <button 
@@ -175,6 +200,75 @@ const ChatMessage = ({ message, onOptionSelect }) => {
       );
     }
 
+<<<<<<< HEAD
+    // For notification messages
+    if (message.isNotification) {
+      return (
+        <div>
+          <div className="p-2 bg-indigo-50 border border-indigo-200 rounded-md">
+            <div className="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+              </svg>
+              <span className="font-medium text-indigo-700">Status Update</span>
+            </div>
+            <div className="mt-1">
+              <ReactMarkdown>{message.content}</ReactMarkdown>
+            </div>
+          </div>
+          
+          {message.options && message.options.length > 0 && (
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              {message.options.map((option, index) => (
+                <button 
+                  key={index} 
+                  className="p-2 text-left border border-primary-200 rounded-md hover:bg-primary-50 transition-colors"
+                  onClick={() => handleOptionSelect(option.id, option.text)}
+                >
+                  <div className="font-medium text-primary-700">{option.text}</div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+    
+    // For status detail messages
+    if (message.isStatus) {
+      return (
+        <div>
+          <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+            <div className="flex items-center mb-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+              <span className="font-medium text-blue-700">Ticket Status</span>
+            </div>
+            <div className="text-sm text-blue-800">
+              <ReactMarkdown>{message.content}</ReactMarkdown>
+            </div>
+          </div>
+          
+          {message.options && message.options.length > 0 && (
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              {message.options.map((option, index) => (
+                <button 
+                  key={index} 
+                  className="p-2 text-left border border-primary-200 rounded-md hover:bg-primary-50 transition-colors"
+                  onClick={() => handleOptionSelect(option.id, option.text)}
+                >
+                  <div className="font-medium text-primary-700">{option.text}</div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+    
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
     // For error messages
     if (message.isError) {
       return (

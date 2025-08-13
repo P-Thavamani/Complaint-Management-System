@@ -66,9 +66,11 @@ def update_profile(current_user):
     allowed_fields = ['name', 'phone', 'department', 'password']
     update_data = {k: v for k, v in data.items() if k in allowed_fields}
     
-    # Handle department field explicitly - allow it to be removed
-    if 'department' in data and data['department'] == '':
-        update_data['department'] = ''
+    # Always include department field in update data, even if it's empty
+    if 'department' in data:
+        update_data['department'] = data['department']
+    if 'phone' in data:
+        update_data['phone'] = data['phone']
     
     # Add updated timestamp
     update_data['updatedAt'] = datetime.utcnow()

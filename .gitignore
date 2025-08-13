@@ -1,68 +1,75 @@
-# Dependencies
-node_modules/
-venv/
+# Python backend
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Environment variables
+# Virtual Environment
+venv/
+ENV/
 .env
+
+# Flask
+instance/
+.webassets-cache
+
+# React frontend
+node_modules/
+/frontend/node_modules
+/frontend/.pnp
+/frontend/.pnp.js
+
+# Testing
+/frontend/coverage
+
+# Production
+/frontend/build
+
+# Misc
+.DS_Store
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# Build files
-/frontend/build/
-/frontend/dist/
-
-# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-logs/
-*.log
 
-# Editor directories and files
+# IDE specific files
 .idea/
 .vscode/
 *.swp
 *.swo
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# Database
+*.sqlite3
+*.db
 
-# ML models
-*.pt
-*.pth
-*.h5
-*.onnx
+# Logs
+logs/
+*.log
 
-# Uploaded files
-/backend/static/uploads/
+# Media files
+media/
+uploads/
 
-# Python cache
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-.nox/
-.hypothesis/
-.egg-info/
-.installed.cfg
-*.egg
-
-# Flask stuff
-instance/
-.webassets-cache
-
-# Virtual environment
-.Python
-pip-log.txt
-pip-delete-this-directory.txt
+# Temporary files
+tmp/
+temp/

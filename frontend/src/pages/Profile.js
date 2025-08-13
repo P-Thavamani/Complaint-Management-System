@@ -1,10 +1,18 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+<<<<<<< HEAD
+import axios from '../services/axios';
+import { toast } from 'react-toastify';
+
+const Profile = () => {
+  const { user, updateUser } = useContext(AuthContext);
+=======
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
 const Profile = () => {
   const { user, updateUser, fetchUserProfile } = useContext(AuthContext);
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -18,6 +26,10 @@ const Profile = () => {
   const [updating, setUpdating] = useState(false);
   const [changePassword, setChangePassword] = useState(false);
 
+<<<<<<< HEAD
+  useEffect(() => {
+    // Load initial form data from the user object
+=======
   // Fetch the latest user data from the database when component mounts
   useEffect(() => {
     const loadProfileData = async () => {
@@ -43,6 +55,7 @@ const Profile = () => {
 
   // Update form data when user data changes
   useEffect(() => {
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
     if (user) {
       setFormData({
         name: user.name || '',
@@ -53,12 +66,21 @@ const Profile = () => {
         newPassword: '',
         confirmPassword: ''
       });
+<<<<<<< HEAD
+      setLoading(false);
+    } else {
+      setLoading(false);
+    }
+  }, [user]);
+
+=======
       // If we have user data but loading is still true, set it to false
       if (loading) {
         setLoading(false);
       }
     }
   }, [user, loading]);
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -95,6 +117,11 @@ const Profile = () => {
       // Prepare data for API call
       const updateData = {
         name: formData.name,
+<<<<<<< HEAD
+        phone: formData.phone,
+        department: formData.department // Always include department field
+      };
+=======
         phone: formData.phone
       };
       
@@ -102,6 +129,7 @@ const Profile = () => {
       if (formData.department.trim()) {
         updateData.department = formData.department;
       }
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
 
       // Add password fields if changing password
       if (changePassword) {
@@ -109,6 +137,18 @@ const Profile = () => {
         updateData.newPassword = formData.newPassword;
       }
 
+<<<<<<< HEAD
+      console.log('Sending profile update with data:', updateData);
+      const response = await axios.put('/api/users/profile', updateData);
+
+      console.log('Profile update response:', response.data);
+
+      // Update user context with new data
+      updateUser(response.data);
+
+      toast.success('Profile updated successfully');
+
+=======
       const response = await axios.put('/api/users/profile', updateData);
       
       // Update user context with new data
@@ -119,6 +159,7 @@ const Profile = () => {
       
       toast.success('Profile updated successfully');
       
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
       // Reset password fields
       if (changePassword) {
         setFormData(prev => ({
@@ -131,17 +172,34 @@ const Profile = () => {
       }
     } catch (error) {
       console.error('Error updating profile:', error);
+<<<<<<< HEAD
+      console.log('Error details:', {
+        request: error.request,
+        response: error.response,
+        config: error.config
+      });
+
+=======
       
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
       // Handle different types of errors
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
         const errorMessage = error.response.data?.error || error.response.data?.message || 'Failed to update profile';
         toast.error(errorMessage);
+<<<<<<< HEAD
+
+        // Log specific error details for debugging
+        if (error.response.status === 400) {
+          console.log('Bad request data:', error.response.data);
+          toast.error(`Bad request: ${JSON.stringify(error.response.data)}`);
+=======
         
         // Log specific error details for debugging
         if (error.response.status === 400) {
           console.log('Bad request data:', error.response.data);
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
         } else if (error.response.status === 401) {
           toast.error('Authentication error. Please log in again.');
           // Could redirect to login page here
@@ -151,9 +209,16 @@ const Profile = () => {
       } else if (error.request) {
         // The request was made but no response was received
         toast.error('No response from server. Please check your connection and try again.');
+<<<<<<< HEAD
+        console.log('No response received:', error.request);
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        toast.error(`An unexpected error occurred: ${error.message}. Please try again later.`);
+=======
       } else {
         // Something happened in setting up the request that triggered an Error
         toast.error('An unexpected error occurred. Please try again later.');
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
       }
     } finally {
       setUpdating(false);
@@ -171,7 +236,11 @@ const Profile = () => {
   return (
     <div className="max-w-4xl mx-auto py-8 px-4">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">Your Profile</h1>
+<<<<<<< HEAD
+
+=======
       
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="p-6">
           <form onSubmit={handleSubmit}>
@@ -191,7 +260,11 @@ const Profile = () => {
                   required
                 />
               </div>
+<<<<<<< HEAD
+
+=======
               
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
               {/* Email (read-only) */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
@@ -207,7 +280,11 @@ const Profile = () => {
                 />
                 <p className="mt-1 text-xs text-gray-500">Email cannot be changed</p>
               </div>
+<<<<<<< HEAD
+
+=======
               
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
               {/* Phone */}
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
@@ -222,7 +299,11 @@ const Profile = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
+<<<<<<< HEAD
+
+=======
               
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
               {/* Department */}
               <div>
                 <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-1">
@@ -238,7 +319,11 @@ const Profile = () => {
                 />
               </div>
             </div>
+<<<<<<< HEAD
+
+=======
             
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
             {/* Password Change Toggle */}
             <div className="mb-6">
               <div className="flex items-center">
@@ -254,7 +339,11 @@ const Profile = () => {
                 </label>
               </div>
             </div>
+<<<<<<< HEAD
+
+=======
             
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
             {/* Password Fields (conditional) */}
             {changePassword && (
               <div className="space-y-4 mb-6 border-t border-gray-200 pt-4">
@@ -272,7 +361,11 @@ const Profile = () => {
                     required={changePassword}
                   />
                 </div>
+<<<<<<< HEAD
+
+=======
                 
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
                 <div>
                   <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
                     New Password
@@ -289,7 +382,11 @@ const Profile = () => {
                   />
                   <p className="mt-1 text-xs text-gray-500">Password must be at least 6 characters</p>
                 </div>
+<<<<<<< HEAD
+
+=======
                 
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
                 <div>
                   <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
                     Confirm New Password
@@ -306,7 +403,11 @@ const Profile = () => {
                 </div>
               </div>
             )}
+<<<<<<< HEAD
+
+=======
             
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
             {/* Submit Button */}
             <div className="flex justify-end">
               <button
@@ -328,7 +429,11 @@ const Profile = () => {
           </form>
         </div>
       </div>
+<<<<<<< HEAD
+
+=======
       
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
       {/* Account Statistics */}
       <div className="mt-8 bg-white rounded-lg shadow-md overflow-hidden">
         <div className="p-6">

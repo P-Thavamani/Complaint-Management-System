@@ -7,26 +7,46 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# MongoDB connection
-MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017/complaint_system')
-client = MongoClient(MONGO_URI)
-db = client.get_database()
+# MongoDB Atlas connection
+MONGO_URI = os.getenv('MONGO_URI')
+if not MONGO_URI:
+    raise ValueError("MONGO_URI environment variable is not set. Please configure your MongoDB Atlas connection string.")
+
+try:
+    print('Attempting to connect to MongoDB Atlas...')
+    # Configure MongoDB client with appropriate options for Atlas
+    client = MongoClient(
+        MONGO_URI,
+        tls=True,
+        tlsAllowInvalidCertificates=True,  # For development only
+        serverSelectionTimeoutMS=5000  # Reduce timeout for faster feedback
+    )
+    # Test the connection
+    client.admin.command('ping')
+    print('Successfully connected to MongoDB Atlas!')
+    db = client.get_database()
+except Exception as e:
+    print('Failed to connect to MongoDB Atlas:')
+    print(f'Error: {str(e)}')
+    print('Please check your connection string and ensure your IP is whitelisted in MongoDB Atlas.')
+    raise
 
 def init_db():
     # Check if admin user already exists
-    admin_exists = db.users.find_one({'email': 'admin@example.com'})
+    admin_exists = db.users.find_one({'email': 'thavamani.thavamani123@gmail.com'})
     
     if not admin_exists:
         # Create admin user
         admin_user = {
-            'name': 'Admin User',
-            'email': 'admin@example.com',
+            'name': 'Thavamani',
+            'email': 'thavamani.thavamani123@gmail.com',
             'password': pbkdf2_sha256.hash('admin123'),  # Change this in production
             'is_admin': True,
-            'phone': '123-456-7890',
+            'phone': '6281107467',
             'department': 'Administration',
             'createdAt': datetime.utcnow(),
-            'lastLogin': None
+            'lastLogin': None,
+            'reward_points': 0
         }
         
         db.users.insert_one(admin_user)
@@ -47,7 +67,8 @@ def init_db():
             'phone': '987-654-3210',
             'department': 'Testing',
             'createdAt': datetime.utcnow(),
-            'lastLogin': None
+            'lastLogin': None,
+            'reward_points': 0
         }
         
         db.users.insert_one(test_user)
@@ -60,6 +81,8 @@ def init_db():
     db.complaints.create_index('user_id')
     db.complaints.create_index('status')
     db.complaints.create_index('createdAt')
+    db.rewards.create_index('user_id')
+    db.rewards.create_index('timestamp')
     
     print("Database initialization completed.")
 

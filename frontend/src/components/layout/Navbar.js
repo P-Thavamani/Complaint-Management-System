@@ -2,7 +2,11 @@ import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 
+<<<<<<< HEAD
+const Navbar = ({ onReload }) => {
+=======
 const Navbar = () => {
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
   const { user, logout, isAdmin } = useContext(AuthContext);
 
   return (
@@ -24,12 +28,22 @@ const Navbar = () => {
             </Link>
             {user ? (
               <>
+<<<<<<< HEAD
+                {isAdmin() ? (
+                  <Link to="/admin" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
+                    Admin Dashboard
+                  </Link>
+                ) : (
+                  <Link to="/dashboard" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
+                    User Dashboard
+=======
                 <Link to="/dashboard" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
                   Dashboard
                 </Link>
                 {isAdmin() && (
                   <Link to="/admin" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
                     Admin
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
                   </Link>
                 )}
               </>
@@ -81,6 +95,18 @@ const Navbar = () => {
               </div>
             )}
 
+<<<<<<< HEAD
+            {/* Reload Button */}
+            {user && (
+                <button onClick={onReload} className="text-gray-600 hover:text-primary-600 transition-colors duration-200 ml-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.01M16 4v5h.01M4 19v-5h.01M16 19v-5h.01M10 14H6m4 0H6m12 0h-4m4 0h-4M8 8h10M8 20h10" />
+                    </svg>
+                </button>
+            )}
+
+=======
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
             {/* Mobile Menu Button */}
             <button className="md:hidden ml-4 focus:outline-none">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">

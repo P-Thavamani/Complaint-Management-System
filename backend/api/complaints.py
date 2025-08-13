@@ -1,7 +1,9 @@
 from flask import Blueprint, request, jsonify, current_app
 from bson.objectid import ObjectId
 from datetime import datetime
-from utils.auth_middleware import token_required
+from utils.auth_middleware import token_required, admin_required
+from utils.rewards import award_points
+from utils.notifications import send_ticket_creation_notification
 import json
 
 complaints_bp = Blueprint('complaints', __name__)
@@ -99,6 +101,11 @@ def create_complaint(current_user):
     # Get user details
     user = db.users.find_one({'_id': ObjectId(current_user['id'])})
     
+    # Map "urgent" priority to "high"
+    priority = data.get('priority', 'medium')
+    if priority == 'urgent':
+        priority = 'high'
+
     # Create complaint document
     complaint = {
         'subject': data['subject'],
@@ -108,7 +115,7 @@ def create_complaint(current_user):
         'subcategoryName': data.get('subcategoryName', ''),
         'problem': data.get('problem', ''),
         'status': 'pending',
-        'priority': data.get('priority', 'medium'),  # Default to medium priority
+        'priority': priority,  # Use the mapped priority
         'user_id': ObjectId(current_user['id']),
         'user': {
             'name': user['name'],
@@ -116,6 +123,7 @@ def create_complaint(current_user):
         },
         'createdAt': datetime.utcnow(),
         'updatedAt': datetime.utcnow(),
+        'lastViewedAt': datetime.utcnow(),  # Add lastViewedAt field for tracking updates
         'comments': [],
         'imageUrl': data.get('imageUrl'),
         'detectedObjects': data.get('detectedObjects', [])
@@ -131,7 +139,32 @@ def create_complaint(current_user):
     # Format complaint for response
     formatted_complaint = format_complaint(created_complaint)
     
-    return jsonify(formatted_complaint), 201
+    # Send notification to user about ticket creation
+    notification_result = send_ticket_creation_notification(
+        user_email=user['email'],
+        user_phone=user.get('phone'),
+        ticket_id=str(complaint_id),
+        ticket_subject=data.get('subject'),
+        created_at=complaint['createdAt']
+    )
+    
+    # Award points for creating a ticket
+    reward_result = award_points(current_user['id'], 'create_ticket', str(complaint_id))
+    
+    response = {
+        'complaint': formatted_complaint,
+        'notifications': notification_result
+    }
+    
+    # Add reward information to the response
+    if reward_result.get('awarded', False):
+        response['reward'] = {
+            'points_earned': reward_result.get('points', 0),
+            'total_points': reward_result.get('total_points', 0),
+            'message': reward_result.get('message', '')
+        }
+    
+    return jsonify(response), 201
 
 @complaints_bp.route('/<complaint_id>', methods=['GET'])
 @token_required
@@ -163,10 +196,45 @@ def get_complaint_detail(current_user, complaint_id):
                 'email': agent['email']
             }
     
+    # Update lastViewedAt timestamp when user views complaint
+    db.complaints.update_one(
+        {'_id': complaint_obj_id},
+        {'$set': {'lastViewedAt': datetime.utcnow()}}
+    )
+    
     # Format complaint for response
     formatted_complaint = format_complaint(complaint)
     
     return jsonify(formatted_complaint)
+
+@complaints_bp.route('/<complaint_id>', methods=['GET', 'DELETE'])
+@token_required
+@admin_required
+def delete_complaint(current_user, complaint_id):
+    """
+    Delete a complaint by its ID (admin only)
+    """
+    db = current_app.config['db']
+    
+    try:
+        # Convert complaint_id to ObjectId
+        complaint_obj_id = ObjectId(complaint_id)
+    except:
+        return jsonify({'error': 'Invalid complaint ID'}), 400
+    
+    # Get complaint from database
+    complaint = db.complaints.find_one({'_id': complaint_obj_id})
+    
+    if not complaint:
+        return jsonify({'error': 'Complaint not found'}), 404
+    
+    # Delete the complaint from the database
+    result = db.complaints.delete_one({'_id': complaint_obj_id})
+    
+    if result.deleted_count > 0:
+        return jsonify({'message': 'Complaint deleted successfully'}), 200
+    else:
+        return jsonify({'error': 'Complaint deletion failed'}), 500
 
 @complaints_bp.route('/<complaint_id>/comments', methods=['POST'])
 @token_required

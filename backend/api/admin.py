@@ -1,7 +1,10 @@
-from flask import Blueprint, request, jsonify, current_app
+from flask import Flask, Blueprint, request, jsonify, current_app
 from bson.objectid import ObjectId
 from datetime import datetime, timedelta
 from utils.auth_middleware import admin_required
+from utils.notifications import send_thank_you_notifications
+from utils.rewards import award_points
+from flask_cors import CORS
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -175,6 +178,20 @@ def manage_complaint(current_user, complaint_id):
         {'$set': update_data}
     )
     
+    # If status changed to resolved, send notification and award points
+    if new_status and new_status == 'resolved' and current_status != 'resolved':
+        # Get user details
+        user = db.users.find_one({'_id': complaint['user_id']})
+        if user:
+            # Send thank you notifications
+            notification_result = send_thank_you_notifications(
+                user_email=user['email'],
+                user_phone=user.get('phone')  # Send WhatsApp if phone is available
+            )
+            
+            # Award points for resolving a ticket
+            reward_result = award_points(str(complaint['user_id']), 'resolved_ticket', complaint_id)
+    
     # Add system comment about the update
     comment_text = f"Complaint updated by admin: "
     changes = []
@@ -254,3 +271,81 @@ def get_all_users(current_user):
         formatted_users.append(user)
     
     return jsonify(formatted_users)
+
+@admin_bp.route('/agents', methods=['GET'])
+@admin_required
+def get_all_agents(current_user):
+    db = current_app.config['db']
+    
+    # Check if agents collection exists, if not create sample data
+    if 'agents' not in db.list_collection_names() or db.agents.count_documents({}) == 0:
+        # Create sample agents data
+        sample_agents = [
+            {
+                'id': 'agent1',
+                'name': 'John Smith',
+                'email': 'john.smith@example.com',
+                'expertise': ['hardware', 'network', 'all'],
+                'expertiseLevel': 5,
+                'available': True,
+                'currentWorkload': 3,
+                'department': 'IT Support'
+            },
+            {
+                'id': 'agent2',
+                'name': 'Sarah Johnson',
+                'email': 'sarah.johnson@example.com',
+                'expertise': ['software', 'service'],
+                'expertiseLevel': 4,
+                'available': True,
+                'currentWorkload': 5,
+                'department': 'Software Support'
+            },
+            {
+                'id': 'agent3',
+                'name': 'Michael Chen',
+                'email': 'michael.chen@example.com',
+                'expertise': ['hardware', 'software'],
+                'expertiseLevel': 3,
+                'available': False,
+                'currentWorkload': 8,
+                'department': 'Technical Support'
+            },
+            {
+                'id': 'agent4',
+                'name': 'Emily Rodriguez',
+                'email': 'emily.rodriguez@example.com',
+                'expertise': ['network', 'service'],
+                'expertiseLevel': 4,
+                'available': True,
+                'currentWorkload': 2,
+                'department': 'Customer Support'
+            },
+            {
+                'id': 'agent5',
+                'name': 'David Kim',
+                'email': 'david.kim@example.com',
+                'expertise': ['software', 'all'],
+                'expertiseLevel': 5,
+                'available': True,
+                'currentWorkload': 4,
+                'department': 'Product Support'
+            }
+        ]
+        
+        # Insert sample agents
+        db.agents.insert_many(sample_agents)
+    
+    # Get all agents
+    agents = list(db.agents.find({}))
+    
+    # Format agents for response
+    formatted_agents = []
+    for agent in agents:
+        # Remove MongoDB _id field and use our custom id
+        if '_id' in agent:
+            agent.pop('_id')
+        
+        formatted_agents.append(agent)
+    
+    return jsonify(formatted_agents)

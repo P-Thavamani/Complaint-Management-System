@@ -14,3 +14,9 @@ pydub
 sentencepiece
 protobuf
 google-generativeai
+# Email support
+flask-mail
+# WhatsApp integration
+twilio
+# Scheduling support
+apscheduler

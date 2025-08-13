@@ -1,7 +1,28 @@
+<<<<<<< HEAD
+import React, { useContext, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+
+
+const Home = () => {
+  const { user, loading, isAdmin } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && user) {
+      let destination = isAdmin() ? '/admin' : '/dashboard';
+        navigate(destination);
+    }
+  }, [user, loading, isAdmin, navigate]);
+
+
+=======
 import React from 'react';
 import { Link } from 'react-router-dom';
 
 const Home = () => {
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
   return (
     <div>
       {/* Hero Section */}
@@ -12,10 +33,17 @@ const Home = () => {
             Efficiently handle complaints with our intelligent system that uses AI to understand, categorize, and resolve issues.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
+<<<<<<< HEAD
+            <Link to={isAdmin() ? "/admin" : "/register"} className="btn-secondary text-lg px-8 py-3">
+              Get Started
+            </Link>
+            <Link to={isAdmin() ? "/admin" : "/login"} className="bg-white text-primary-700 hover:bg-gray-100 font-medium py-3 px-8 rounded-md transition-colors duration-200 text-lg">
+=======
             <Link to="/register" className="btn-secondary text-lg px-8 py-3">
               Get Started
             </Link>
             <Link to="/login" className="bg-white text-primary-700 hover:bg-gray-100 font-medium py-3 px-8 rounded-md transition-colors duration-200 text-lg">
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
               Login
             </Link>
           </div>
@@ -29,7 +57,11 @@ const Home = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Feature 1 */}
+<<<<<<< HEAD
+            <Link to={isAdmin() ? "/admin" : "/dashboard"} className="card text-center hover:shadow-lg transition-shadow duration-300">
+=======
             <Link to="/dashboard" className="card text-center hover:shadow-lg transition-shadow duration-300">
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
               <div className="rounded-full bg-primary-100 p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -42,7 +74,11 @@ const Home = () => {
             </Link>
             
             {/* Feature 2 */}
+<<<<<<< HEAD
+            <Link to={isAdmin() ? "/admin" : "/dashboard"} className="card text-center hover:shadow-lg transition-shadow duration-300">
+=======
             <Link to="/dashboard" className="card text-center hover:shadow-lg transition-shadow duration-300">
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
               <div className="rounded-full bg-primary-100 p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -55,7 +91,11 @@ const Home = () => {
             </Link>
             
             {/* Feature 3 */}
+<<<<<<< HEAD
+            <Link to={isAdmin() ? "/admin" : "/dashboard"} className="card text-center hover:shadow-lg transition-shadow duration-300">
+=======
             <Link to="/dashboard" className="card text-center hover:shadow-lg transition-shadow duration-300">
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
               <div className="rounded-full bg-primary-100 p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -77,7 +117,11 @@ const Home = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Text Input */}
+<<<<<<< HEAD
+            <Link to={isAdmin() ? "/admin" : "/dashboard"} className="card hover:shadow-lg transition-shadow duration-300">
+=======
             <Link to="/dashboard" className="card hover:shadow-lg transition-shadow duration-300">
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
               <div className="flex items-center mb-4">
                 <div className="rounded-full bg-blue-100 p-3 mr-4">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -92,7 +136,11 @@ const Home = () => {
             </Link>
             
             {/* Voice Input */}
+<<<<<<< HEAD
+            <Link to={isAdmin() ? "/admin" : "/dashboard"} className="card hover:shadow-lg transition-shadow duration-300">
+=======
             <Link to="/dashboard" className="card hover:shadow-lg transition-shadow duration-300">
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
               <div className="flex items-center mb-4">
                 <div className="rounded-full bg-green-100 p-3 mr-4">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -107,7 +155,11 @@ const Home = () => {
             </Link>
             
             {/* Image Input */}
+<<<<<<< HEAD
+            <Link to={isAdmin() ? "/admin" : "/dashboard"} className="card hover:shadow-lg transition-shadow duration-300">
+=======
             <Link to="/dashboard" className="card hover:shadow-lg transition-shadow duration-300">
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
               <div className="flex items-center mb-4">
                 <div className="rounded-full bg-purple-100 p-3 mr-4">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -167,7 +219,11 @@ const Home = () => {
                 <div className="flex flex-col md:flex-row items-center">
                   <div className="flex-1 md:text-right md:pr-8 mb-4 md:mb-0">
                     <h3 className="text-xl font-semibold mb-2">Ticket Generation</h3>
+<<<<<<< HEAD
+                    <p className="text-gray-600">If the issue can\'t be resolved immediately, a ticket is automatically generated and assigned to the appropriate team.</p>
+=======
                     <p className="text-gray-600">If the issue can't be resolved immediately, a ticket is automatically generated and assigned to the appropriate team.</p>
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
                   </div>
                   <div className="z-10 flex items-center justify-center w-12 h-12 rounded-full bg-primary-500 text-white font-bold">
                     3
@@ -201,7 +257,11 @@ const Home = () => {
           <p className="text-xl mb-8 max-w-2xl mx-auto">
             Join thousands of satisfied users who have streamlined their complaint management process with our AI-powered system.
           </p>
+<<<<<<< HEAD
+          <Link to={isAdmin() ? "/admin" : "/register"} className="bg-white text-primary-700 hover:bg-gray-100 font-medium py-3 px-8 rounded-md transition-colors duration-200 text-lg inline-block">
+=======
           <Link to="/register" className="bg-white text-primary-700 hover:bg-gray-100 font-medium py-3 px-8 rounded-md transition-colors duration-200 text-lg inline-block">
+>>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
             Create Your Account
           </Link>
         </div>

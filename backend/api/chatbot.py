@@ -13,8 +13,99 @@ import cv2
 from utils.auth_middleware import token_required
 import uuid
 import google.generativeai as genai
+from utils.notifications import send_thank_you_notifications
+import re
 
 chatbot_bp = Blueprint('chatbot', __name__)
+
+# Auto-categorization function
+def auto_categorize_complaint(description):
+    # Define keyword patterns for each category
+    categories = {
+        'hardware': [
+            r'\b(hardware|device|computer|laptop|desktop|monitor|keyboard|mouse|printer|scanner|headphone|speaker|microphone|camera|webcam|usb|hdmi|vga|port|cable|adapter|charger|battery|power|screen|display|broken|physical|damage)\b',
+        ],
+        'software': [
+            r'\b(software|program|application|app|install|uninstall|update|upgrade|download|windows|mac|os|operating system|microsoft|office|word|excel|powerpoint|outlook|browser|chrome|firefox|edge|safari|antivirus|virus|malware|bug|crash|freeze|hang|error|blue screen|bsod)\b',
+        ],
+        'network': [
+            r'\b(network|internet|wifi|wi-fi|wireless|ethernet|connection|disconnect|slow|speed|router|modem|access point|ip|dns|vpn|proxy|firewall|server|intranet|lan|wan|ping|packet|bandwidth)\b',
+        ],
+        'service': [
+            r'\b(service|account|login|password|reset|access|permission|role|user|profile|subscription|plan|upgrade|downgrade|cancel|renew|support|help|assistance|guide|tutorial|training)\b',
+        ],
+        'billing': [
+            r'\b(billing|payment|invoice|charge|fee|cost|price|subscription|plan|credit|debit|card|transaction|receipt|refund|discount|coupon|promo|promotion|offer|tax)\b',
+        ]
+    }
+    
+    # Calculate scores for each category
+    scores = {category: 0 for category in categories}
+    
+    for category, patterns in categories.items():
+        for pattern in patterns:
+            matches = re.findall(pattern, description.lower())
+            scores[category] += len(matches)
+    
+    # Find the category with the highest score
+    max_score = 0
+    best_category = 'other'  # Default category
+    
+    for category, score in scores.items():
+        if score > max_score:
+            max_score = score
+            best_category = category
+    
+    return best_category
+
+# Auto-priority determination function
+def auto_determine_priority(description):
+    # Define keyword patterns for each priority level with weights
+    priorities = {
+        'urgent': {
+            'patterns': [
+                r'\b(urgent|emergency|immediate|critical|severe|serious|asap|now|cannot work|completely|broken|down|outage|security breach|data loss|breach|hack|compromised|stolen|fraud|urgent|emergency|fire|disaster|life-threatening|safety|danger|hazard)\b',
+            ],
+            'weight': 3
+        },
+        'high': {
+            'patterns': [
+                r'\b(high|important|significant|major|affecting|multiple users|team|department|deadline|soon|tomorrow|production|customer facing|revenue|money|financial|payment|billing|error|loss|damage|corrupted|missing|deleted)\b',
+            ],
+            'weight': 2
+        },
+        'medium': {
+            'patterns': [
+                r'\b(medium|moderate|average|standard|normal|regular|common|usual|typical|general|minor issue|inconvenience|slow|delay|wait|occasional|intermittent)\b',
+            ],
+            'weight': 1
+        },
+        'low': {
+            'patterns': [
+                r'\b(low|minor|trivial|small|tiny|cosmetic|visual|aesthetic|appearance|suggestion|improvement|enhance|feature request|when possible|whenever|at your convenience|not urgent|can wait)\b',
+            ],
+            'weight': 1
+        }
+    }
+    
+    # Calculate weighted scores for each priority
+    scores = {priority: 0 for priority in priorities}
+    
+    for priority, info in priorities.items():
+        for pattern in info['patterns']:
+            matches = re.findall(pattern, description.lower())
+            scores[priority] += len(matches) * info['weight']
+    
+    # Find the priority with the highest score
+    max_score = 0
+    best_priority = 'medium'  # Default priority
+    
+    for priority, score in scores.items():
+        if score > max_score:
+            max_score = score
+            best_priority = priority
+    
+    return best_priority
 
 # Load YOLOv8 model
 model = None
@@ -412,17 +503,30 @@ def create_ticket(current_user):
     # Get user details
     user = db.users.find_one({'_id': ObjectId(current_user['id'])})
     
+    # Auto-categorize if needed
+    category = data['category']
+    if category == 'general' or category == 'other':
+        # Attempt to auto-categorize based on description
+        category = auto_categorize_complaint(data['description'])
+    
+    # Determine priority if not provided or enhance existing priority
+    priority = data.get('priority', 'medium')
+    if priority == 'medium':
+        # Attempt to determine priority based on description
+        priority = auto_determine_priority(data['description'])
+    
     # Create complaint document
     complaint = {
         'subject': data['subject'],
         'description': data['description'],
-        'category': data['category'],
+        'category': category,
         'status': 'pending',
-        'priority': data.get('priority', 'medium'),  # Default to medium priority
+        'priority': priority,
         'user_id': ObjectId(current_user['id']),
         'user': {
             'name': user['name'],
-            'email': user['email']
+            'email': user['email'],
+            'phone': user.get('phone')  # Include phone if available
         },
         'createdAt': datetime.utcnow(),
         'updatedAt': datetime.utcnow(),
@@ -439,4 +543,30 @@ def create_ticket(current_user):
         'message': 'Ticket created successfully',
         'ticketId': str(complaint_id),
         'ticketNumber': str(complaint_id)[-6:].upper()  # Generate a shorter ticket number for display
+    })
+
+@chatbot_bp.route('/issue-solved', methods=['POST'])
+@token_required
+def issue_solved(current_user):
+    """
+    Handle when a user indicates their issue is solved and send thank you notifications
+    """
+    db = current_app.config['db']
+    
+    # Get user details
+    user = db.users.find_one({'_id': ObjectId(current_user['id'])})
+    
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    # Send thank you notifications
+    notification_result = send_thank_you_notifications(
+        user_email=user['email'],
+        user_phone=user.get('phone')  # Send WhatsApp if phone is available
+    )
+    
+    return jsonify({
+        'message': 'Thank you for using our service!',
+        'notifications': notification_result,
+        'showThankYouPopup': True
     })

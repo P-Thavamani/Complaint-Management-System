@@ -14,6 +14,7 @@ def is_valid_email(email):
 
 # Helper function to generate JWT token
 def generate_token(user_id, is_admin=False):
+    print(f"Generating token for user {user_id} with is_admin={is_admin}")
     payload = {
         'exp': datetime.utcnow() + timedelta(days=1),
         'iat': datetime.utcnow(),
