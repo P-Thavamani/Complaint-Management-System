@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react';
-<<<<<<< HEAD
 import axios from '../../services/axios';
-=======
-import axios from 'axios';
->>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
 
 const VoiceInput = ({ onTranscript, onCancel }) => {
   const [isRecording, setIsRecording] = useState(false);
@@ -91,15 +87,15 @@ const VoiceInput = ({ onTranscript, onCancel }) => {
       formData.append('audio', audioBlob, 'recording.webm');
       
       // Send to backend for processing with Google STT
-      const response = await axios.post('/api/chatbot/voice', formData, {
+      const response = await axios.post('/api/chatbot/process-voice', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
       
       // Pass transcript to parent component
-      if (response.data.transcript) {
-        onTranscript(response.data.transcript);
+      if (response.data.transcribedText) {
+        onTranscript(response.data.transcribedText);
       } else {
         throw new Error('No transcript received');
       }

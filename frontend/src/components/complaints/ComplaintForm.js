@@ -22,7 +22,7 @@ const ComplaintForm = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get('/api/categories');
+        const response = await axios.get('/api/categories/');
         setCategories(response.data);
         setLoading(false);
       } catch (error) {
@@ -76,7 +76,8 @@ const ComplaintForm = () => {
       
       const response = await axios.post('/api/complaints', complaintData);
       toast.success('Complaint submitted successfully!');
-      navigate(`/complaint/${response.data._id}`);
+      const id = response.data?.complaint?._id || response.data?._id || response.data?.id;
+      navigate(`/complaint/${id}`);
     } catch (error) {
       console.error('Error submitting complaint:', error);
       toast.error('Failed to submit complaint. Please try again.');

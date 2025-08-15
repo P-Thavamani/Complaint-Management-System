@@ -2,122 +2,99 @@ import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 
-<<<<<<< HEAD
 const Navbar = ({ onReload }) => {
-=======
-const Navbar = () => {
->>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
-  const { user, logout, isAdmin } = useContext(AuthContext);
+	const { user, logout, isAdmin } = useContext(AuthContext);
 
-  return (
-    <nav className="bg-white shadow-md">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center py-4">
-          {/* Logo */}
-          <Link to="/" className="text-2xl font-bold text-primary-600 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mr-2" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-            </svg>
-            ComplaintAI
-          </Link>
+	return (
+		<nav className="bg-white shadow-md">
+			<div className="container mx-auto px-4">
+				<div className="flex justify-between items-center py-4">
+					{/* Logo */}
+					<Link to="/" className="text-2xl font-bold text-primary-600 flex items-center">
+						<svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mr-2" viewBox="0 0 20 20" fill="currentColor">
+							<path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+						</svg>
+						ComplaintAI
+					</Link>
 
-          {/* Navigation Links */}
-          <div className="hidden md:flex space-x-6">
-            <Link to="/" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
-              Home
-            </Link>
-            {user ? (
-              <>
-<<<<<<< HEAD
-                {isAdmin() ? (
-                  <Link to="/admin" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
-                    Admin Dashboard
-                  </Link>
-                ) : (
-                  <Link to="/dashboard" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
-                    User Dashboard
-=======
-                <Link to="/dashboard" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
-                  Dashboard
-                </Link>
-                {isAdmin() && (
-                  <Link to="/admin" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
-                    Admin
->>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
-                  </Link>
-                )}
-              </>
-            ) : (
-              <>
-                <Link to="/login" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
-                  Login
-                </Link>
-                <Link to="/register" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
-                  Register
-                </Link>
-              </>
-            )}
-          </div>
+					{/* Navigation Links */}
+					<div className="hidden md:flex space-x-6">
+						<Link to="/" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
+							Home
+						</Link>
+						{user ? (
+							<>
+								{isAdmin() ? (
+									<Link to="/admin" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
+										Admin Dashboard
+									</Link>
+								) : (
+									<Link to="/dashboard" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
+										User Dashboard
+									</Link>
+								)}
+							</>
+						) : (
+							<>
+								<Link to="/login" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
+									Login
+								</Link>
+								<Link to="/register" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
+									Register
+								</Link>
+							</>
+						)}
+					</div>
 
-          {/* User Menu or Login/Register Buttons */}
-          <div className="flex items-center">
-            {user ? (
-              <div className="relative group z-20">
-                <button className="flex items-center space-x-2 focus:outline-none">
-                  <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-semibold">
-                    {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                  </div>
-                  <span className="text-gray-700">{user.name || 'User'}</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                </button>
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-300">
-                  <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Profile
-                  </Link>
-                  <button
-                    onClick={logout}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Logout
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="hidden sm:flex space-x-2">
-                <Link to="/login" className="btn-outline">
-                  Login
-                </Link>
-                <Link to="/register" className="btn-primary">
-                  Register
-                </Link>
-              </div>
-            )}
+					{/* User Menu or Login/Register Buttons */}
+					<div className="flex items-center">
+						{user ? (
+							<div className="relative group z-20">
+								<button className="flex items-center space-x-2 focus:outline-none">
+									<div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-semibold">
+										{user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+									</div>
+									<span className="text-gray-700">{user.name || 'User'}</span>
+									<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+										<path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+									</svg>
+								</button>
+								<div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-300">
+									<Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+										Profile
+									</Link>
+									<button onClick={logout} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+										Logout
+									</button>
+								</div>
+							</div>
+						) : (
+							<div className="hidden sm:flex space-x-2">
+								<Link to="/login" className="btn-outline">Login</Link>
+								<Link to="/register" className="btn-primary">Register</Link>
+							</div>
+						)}
 
-<<<<<<< HEAD
-            {/* Reload Button */}
-            {user && (
-                <button onClick={onReload} className="text-gray-600 hover:text-primary-600 transition-colors duration-200 ml-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.01M16 4v5h.01M4 19v-5h.01M16 19v-5h.01M10 14H6m4 0H6m12 0h-4m4 0h-4M8 8h10M8 20h10" />
-                    </svg>
-                </button>
-            )}
+						{/* Reload Button */}
+						{user && (
+							<button onClick={onReload} className="text-gray-600 hover:text-primary-600 transition-colors duration-200 ml-4">
+								<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.01M16 4v5h.01M4 19v-5h.01M16 19v-5h.01M10 14H6m4 0H6m12 0h-4m4 0h-4M8 8h10M8 20h10" />
+								</svg>
+							</button>
+						)}
 
-=======
->>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
-            {/* Mobile Menu Button */}
-            <button className="md:hidden ml-4 focus:outline-none">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    </nav>
-  );
+						{/* Mobile Menu Button */}
+						<button className="md:hidden ml-4 focus:outline-none">
+							<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+							</svg>
+						</button>
+					</div>
+				</div>
+			</div>
+		</nav>
+	);
 };
 
 export default Navbar;

@@ -13,7 +13,7 @@ import cv2
 from utils.auth_middleware import token_required
 import uuid
 import google.generativeai as genai
-from utils.notifications import send_thank_you_notifications
+from utils.notifications import send_thank_you_notifications, send_ticket_creation_notification
 import re
 
 chatbot_bp = Blueprint('chatbot', __name__)
@@ -539,10 +539,21 @@ def create_ticket(current_user):
     result = db.complaints.insert_one(complaint)
     complaint_id = result.inserted_id
     
+    # Send notification to user about ticket creation
+    notification_result = send_ticket_creation_notification(
+        user_email=user['email'],
+        user_name=user['name'],
+        ticket_id=str(complaint_id),
+        subject=data['subject'],
+        category=category,
+        priority=priority
+    )
+    
     return jsonify({
         'message': 'Ticket created successfully',
         'ticketId': str(complaint_id),
-        'ticketNumber': str(complaint_id)[-6:].upper()  # Generate a shorter ticket number for display
+        'ticketNumber': str(complaint_id)[-6:].upper(),  # Generate a shorter ticket number for display
+        'notifications': notification_result
     })
 
 @chatbot_bp.route('/issue-solved', methods=['POST'])

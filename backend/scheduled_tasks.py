@@ -3,8 +3,9 @@ import time
 import atexit
 from datetime import datetime, timedelta
 from flask import Flask
-from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.schedulers.background import BackgroundScheduler  # type: ignore[import]
 from pymongo import MongoClient
+from typing import Any
 from dotenv import load_dotenv
 from bson import ObjectId
 
@@ -14,15 +15,9 @@ from utils.notifications import send_notification
 # Load environment variables
 load_dotenv()
 
-# MongoDB Atlas connection
-MONGO_URI = os.getenv('MONGO_URI')
-client = MongoClient(
-    MONGO_URI,
-    tls=True,
-    tlsAllowInvalidCertificates=True,
-    serverSelectionTimeoutMS=5000
-)
-db = client.get_database()
+# MongoDB Atlas connection - will be set by Flask app context
+client = None
+db = None
 
 def check_and_escalate_complaints():
     """
@@ -35,6 +30,13 @@ def check_and_escalate_complaints():
     it will be automatically escalated.
     """
     print(f"[{datetime.now()}] Running scheduled escalation check...")
+    
+    # Get database from Flask app context
+    from flask import current_app
+    db = current_app.config.get('db')
+    if not db:
+        print("Database not available in app context")
+        return []
     
     # Define time thresholds for each priority level
     thresholds = {
@@ -51,17 +53,10 @@ def check_and_escalate_complaints():
     })
     
     for complaint in complaints:
-        # Get the complaint creation time
-        created_at = complaint.get('created_at')
+        # Get the complaint creation time (use camelCase createdAt used by API)
+        created_at = complaint.get('createdAt')
         if not created_at:
             continue
-            
-        # Convert string date to datetime object if needed
-        if isinstance(created_at, str):
-            try:
-                created_at = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
-            except ValueError:
-                continue
         
         # Get the complaint priority
         priority = complaint.get('priority', 'low').lower()
@@ -77,35 +72,44 @@ def check_and_escalate_complaints():
         if hours_diff >= threshold_hours:
             # Update the complaint status to 'escalated'
             complaint_id = complaint.get('_id')
-            
+
             # Add a system comment about the escalation
-            escalation_comment = {
-                'user_id': 'system',
-                'user_name': 'System',
-                'comment': f'This complaint has been automatically escalated after {threshold_hours} hours without resolution.',
-                'timestamp': datetime.now().isoformat()
+            system_comment = {
+                '_id': ObjectId(),
+                'content': f"Complaint automatically escalated due to exceeding time threshold for {priority} priority.",
+                'user_id': ObjectId(),
+                'user': {
+                    'name': 'System',
+                    'email': 'system@example.com'
+                },
+                'createdAt': datetime.utcnow(),
+                'isSystem': True
             }
-            
+
             # Update the complaint in the database
             db.complaints.update_one(
                 {'_id': complaint_id},
                 {
-                    '$set': {'status': 'escalated'},
-                    '$push': {'comments': escalation_comment}
+                    '$set': {
+                        'status': 'escalated',
+                        'escalatedAt': datetime.utcnow(),
+                        'updatedAt': datetime.utcnow()
+                    },
+                    '$push': {'comments': system_comment}
                 }
             )
             
             # Send notification to the user
             user_id = complaint.get('user_id')
-            user = db.users.find_one({'_id': ObjectId(user_id)}) if user_id else None
+            user = db.users.find_one({'_id': user_id}) if user_id else None
             
             if user:
-                notification_message = f"Your complaint (ID: {complaint.get('complaint_id')}) has been escalated due to exceeding the resolution time threshold."
+                notification_message = f"Your complaint (ID: {str(complaint_id)[-6:].upper()}) has been escalated due to exceeding the resolution time threshold."
                 send_notification(user, 'Complaint Escalated', notification_message)
             
             # Add to the list of escalated complaints
             escalated_complaints.append({
-                'complaint_id': complaint.get('complaint_id'),
+                'complaintId': str(complaint_id),
                 'subject': complaint.get('subject'),
                 'priority': priority,
                 'hours_exceeded': round(hours_diff, 2),
@@ -116,7 +120,7 @@ def check_and_escalate_complaints():
     if escalated_complaints:
         print(f"[{datetime.now()}] Escalated {len(escalated_complaints)} complaints:")
         for complaint in escalated_complaints:
-            print(f"  - Complaint ID: {complaint['complaint_id']}, Subject: {complaint['subject']}, Priority: {complaint['priority']}")
+            print(f"  - Complaint ID: {complaint['complaintId']}, Subject: {complaint['subject']}, Priority: {complaint['priority']}")
     else:
         print(f"[{datetime.now()}] No complaints needed escalation.")
     
@@ -127,10 +131,18 @@ def init_scheduler(app):
     Initialize the scheduler with the Flask app context
     """
     scheduler = BackgroundScheduler()
-    
+
+    # Wrap job to ensure Flask application context is available for notifications
+    def _job_with_app_context():
+        try:
+            with app.app_context():
+                check_and_escalate_complaints()
+        except Exception as e:
+            print(f"Error during scheduled escalation check: {e}")
+
     # Schedule the escalation check to run every hour
     scheduler.add_job(
-        func=check_and_escalate_complaints,
+        func=_job_with_app_context,
         trigger='interval',
         hours=1,
         id='escalation_check',

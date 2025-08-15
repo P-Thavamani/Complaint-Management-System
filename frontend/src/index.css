@@ -36,7 +36,6 @@ code {
   .card {
     @apply bg-white rounded-lg shadow-md p-6;
   }
-<<<<<<< HEAD
   
   .form-input {
     @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
@@ -49,6 +48,4 @@ code {
   .form-textarea {
     @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-y;
   }
-=======
->>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
 }

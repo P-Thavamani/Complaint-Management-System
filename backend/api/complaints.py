@@ -142,10 +142,11 @@ def create_complaint(current_user):
     # Send notification to user about ticket creation
     notification_result = send_ticket_creation_notification(
         user_email=user['email'],
-        user_phone=user.get('phone'),
+        user_name=user['name'],
         ticket_id=str(complaint_id),
-        ticket_subject=data.get('subject'),
-        created_at=complaint['createdAt']
+        subject=data.get('subject'),
+        category=data.get('category'),
+        priority=priority
     )
     
     # Award points for creating a ticket

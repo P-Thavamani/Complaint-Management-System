@@ -2,7 +2,7 @@ from flask import Flask, Blueprint, request, jsonify, current_app
 from bson.objectid import ObjectId
 from datetime import datetime, timedelta
 from utils.auth_middleware import admin_required
-from utils.notifications import send_thank_you_notifications
+from utils.notifications import send_thank_you_notifications, send_status_change_notification, send_ticket_resolved_notification, send_ticket_escalation_notification
 from utils.rewards import award_points
 from flask_cors import CORS
 
@@ -178,19 +178,54 @@ def manage_complaint(current_user, complaint_id):
         {'$set': update_data}
     )
     
-    # If status changed to resolved, send notification and award points
-    if new_status and new_status == 'resolved' and current_status != 'resolved':
+    # Send notifications for status changes
+    if new_status and new_status != current_status:
         # Get user details
         user = db.users.find_one({'_id': complaint['user_id']})
         if user:
-            # Send thank you notifications
-            notification_result = send_thank_you_notifications(
-                user_email=user['email'],
-                user_phone=user.get('phone')  # Send WhatsApp if phone is available
-            )
+            # Get assigned user name if assignment changed
+            assigned_to_name = None
+            if 'assigned_to' in update_data and update_data['assigned_to']:
+                assigned_user = db.users.find_one({'_id': update_data['assigned_to']})
+                if assigned_user:
+                    assigned_to_name = assigned_user['name']
             
-            # Award points for resolving a ticket
-            reward_result = award_points(str(complaint['user_id']), 'resolved_ticket', complaint_id)
+            # Send appropriate notification based on status change
+            if new_status == 'resolved':
+                # Send resolution notification
+                send_ticket_resolved_notification(
+                    user_email=user['email'],
+                    user_name=user['name'],
+                    ticket_id=complaint_id,
+                    resolution_message=data.get('resolution')
+                )
+                
+                # Send thank you notifications
+                send_thank_you_notifications(
+                    user_email=user['email'],
+                    user_phone=user.get('phone')
+                )
+                
+                # Award points for resolving a ticket
+                award_points(str(complaint['user_id']), 'resolved_ticket', complaint_id)
+            elif new_status == 'escalated':
+                # Send escalation notification
+                send_ticket_escalation_notification(
+                    user_email=user['email'],
+                    user_name=user['name'],
+                    ticket_id=complaint_id,
+                    reason=data.get('escalation_reason')
+                )
+            else:
+                # Send general status change notification
+                send_status_change_notification(
+                    user_email=user['email'],
+                    user_name=user['name'],
+                    ticket_id=complaint_id,
+                    old_status=current_status,
+                    new_status=new_status,
+                    assigned_to=assigned_to_name
+                )
     
     # Add system comment about the update
     comment_text = f"Complaint updated by admin: "
@@ -247,6 +282,36 @@ def manage_complaint(current_user, complaint_id):
     formatted_complaint = format_complaint(updated_complaint)
     
     return jsonify(formatted_complaint)
+
+@admin_bp.route('/complaints/<complaint_id>', methods=['DELETE'])
+@admin_required
+def delete_complaint(current_user, complaint_id):
+    """
+    Delete a complaint by ID
+    """
+    try:
+        db = current_app.config['db']
+        
+        # Validate complaint ID
+        if not ObjectId.is_valid(complaint_id):
+            return jsonify({'error': 'Invalid complaint ID'}), 400
+        
+        # Check if complaint exists
+        complaint = db.complaints.find_one({'_id': ObjectId(complaint_id)})
+        if not complaint:
+            return jsonify({'error': 'Complaint not found'}), 404
+        
+        # Delete the complaint
+        result = db.complaints.delete_one({'_id': ObjectId(complaint_id)})
+        
+        if result.deleted_count > 0:
+            return jsonify({'message': 'Complaint deleted successfully'}), 200
+        else:
+            return jsonify({'error': 'Failed to delete complaint'}), 500
+            
+    except Exception as e:
+        print(f"Error deleting complaint: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @admin_bp.route('/users', methods=['GET'])
 @admin_required
