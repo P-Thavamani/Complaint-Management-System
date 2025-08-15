@@ -26,7 +26,9 @@ export const AuthProvider = ({ children }) => {
         ...response.data
       }));
 <<<<<<< HEAD
-      console.log("user profile data: ", response.data)
+      if (process.env.NODE_ENV === 'development') {
+        console.log("user profile data: ", response.data);
+      }
 =======
 >>>>>>> ff5d7d2ee5773ae90cf8a051ccc6605ddc57581a
       return response.data;
@@ -182,7 +184,9 @@ export const AuthProvider = ({ children }) => {
   // Update user data after profile changes
   const updateUser = (userData) => {
 <<<<<<< HEAD
-    console.log('Updating user with data:', userData);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Updating user with data:', userData);
+    }
     // Update the user state with the new data
     setUser(prevUser => {
       const updatedUser = {

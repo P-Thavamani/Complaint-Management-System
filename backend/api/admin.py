@@ -5,6 +5,7 @@ from utils.auth_middleware import admin_required
 from utils.notifications import send_thank_you_notifications
 from utils.rewards import award_points
 from flask_cors import CORS
+from bson.errors import InvalidId
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -136,7 +137,7 @@ def manage_complaint(current_user, complaint_id):
     try:
         # Convert complaint_id to ObjectId
         complaint_obj_id = ObjectId(complaint_id)
-    except:
+    except (TypeError, ValueError, InvalidId):
         return jsonify({'error': 'Invalid complaint ID'}), 400
     
     # Get complaint from database
@@ -166,7 +167,7 @@ def manage_complaint(current_user, complaint_id):
         try:
             update_data['assigned_to'] = ObjectId(update_data['assigned_to'])
             update_data['assignedAt'] = datetime.utcnow()
-        except:
+        except (TypeError, ValueError, InvalidId):
             return jsonify({'error': 'Invalid assigned_to ID'}), 400
     
     # Add updated timestamp

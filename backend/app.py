@@ -48,6 +48,14 @@ print('Connecting to MongoDB Atlas cloud database...')
 MONGO_URI = os.getenv('MONGO_URI')
 if not MONGO_URI:
     print('MONGO_URI environment variable not set. Please configure your MongoDB Atlas connection string.')
+    
+    # Check if we're in production - never allow mock DB in production
+    flask_env = os.getenv('FLASK_ENV', 'production')
+    if flask_env == 'production':
+        print('ERROR: Cannot run in production without a proper database connection!')
+        print('Please set MONGO_URI environment variable with your MongoDB connection string.')
+        exit(1)
+    
     print('Creating mock database for development...')
     from unittest.mock import MagicMock
     mock_db = MagicMock()
@@ -62,10 +70,11 @@ if not MONGO_URI:
 else:
     try:
         # Configure MongoDB client with TLS for cloud connection
+        flask_env = os.getenv('FLASK_ENV', 'production')
         client = MongoClient(
             MONGO_URI,
             tls=True,
-            tlsAllowInvalidCertificates=True,  # Disable certificate verification (for development only)
+            tlsAllowInvalidCertificates=(flask_env == 'development'),  # Only disable cert verification in development
             serverSelectionTimeoutMS=5000  # Reduce timeout for faster feedback
         )
         # Test the connection
@@ -77,6 +86,14 @@ else:
     except Exception as e:
         print('Failed to connect to MongoDB Atlas:')
         print(f'Error: {str(e)}')
+        
+        # Check if we're in production - never allow mock DB in production
+        flask_env = os.getenv('FLASK_ENV', 'production')
+        if flask_env == 'production':
+            print('ERROR: Cannot run in production with database connection failure!')
+            print('Please fix your MongoDB connection or check your MONGO_URI.')
+            exit(1)
+        
         # Create a mock database for development if MongoDB connection fails
         print('Creating mock database for development...')
         from unittest.mock import MagicMock
@@ -91,7 +108,14 @@ else:
         mock_db.agents = MagicMock()
 
 # Secret key for JWT
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+secret_key = os.getenv('SECRET_KEY')
+if not secret_key:
+    print('ERROR: SECRET_KEY environment variable is not set!')
+    print('This is required for JWT token security. Please set SECRET_KEY in your .env file.')
+    print('Example: SECRET_KEY=your_very_long_random_secret_key_here')
+    exit(1)
+
+app.config['SECRET_KEY'] = secret_key
 
 # Configure email settings
 app.config['MAIL_SERVER'] = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
@@ -172,4 +196,12 @@ init_scheduler(app)
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=os.getenv('FLASK_ENV') == 'development')
+    flask_env = os.getenv('FLASK_ENV', 'production')
+    
+    # Security check: never run with debug=True in production
+    debug_mode = flask_env == 'development'
+    if flask_env == 'production' and debug_mode:
+        print('ERROR: Cannot run with debug=True in production!')
+        exit(1)
+    
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)

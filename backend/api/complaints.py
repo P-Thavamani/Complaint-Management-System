@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app
 from bson.objectid import ObjectId
+from bson.errors import InvalidId
 from datetime import datetime
 from utils.auth_middleware import token_required, admin_required
 from utils.rewards import award_points
@@ -174,7 +175,7 @@ def get_complaint_detail(current_user, complaint_id):
     try:
         # Convert complaint_id to ObjectId
         complaint_obj_id = ObjectId(complaint_id)
-    except:
+    except (InvalidId, TypeError):
         return jsonify({'error': 'Invalid complaint ID'}), 400
     
     # Get complaint from database
@@ -219,7 +220,7 @@ def delete_complaint(current_user, complaint_id):
     try:
         # Convert complaint_id to ObjectId
         complaint_obj_id = ObjectId(complaint_id)
-    except:
+    except (InvalidId, TypeError):
         return jsonify({'error': 'Invalid complaint ID'}), 400
     
     # Get complaint from database
@@ -250,7 +251,7 @@ def add_comment(current_user, complaint_id):
     try:
         # Convert complaint_id to ObjectId
         complaint_obj_id = ObjectId(complaint_id)
-    except:
+    except (InvalidId, TypeError):
         return jsonify({'error': 'Invalid complaint ID'}), 400
     
     # Get complaint from database

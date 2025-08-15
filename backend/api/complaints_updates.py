@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app
 from bson.objectid import ObjectId
+from bson.errors import InvalidId
 from datetime import datetime, timedelta
 from utils.auth_middleware import token_required, admin_required
 from utils.notifications import send_thank_you_notifications, send_notification
@@ -113,7 +114,7 @@ def get_complaint_status(current_user, complaint_id):
     try:
         # Convert complaint_id to ObjectId
         complaint_obj_id = ObjectId(complaint_id)
-    except:
+    except (TypeError, ValueError, InvalidId):
         return jsonify({'error': 'Invalid complaint ID'}), 400
     
     # Get complaint from database
@@ -190,7 +191,7 @@ def mark_complaint_resolved(current_user, complaint_id):
     try:
         # Convert complaint_id to ObjectId
         complaint_obj_id = ObjectId(complaint_id)
-    except:
+    except (TypeError, ValueError, InvalidId):
         return jsonify({'error': 'Invalid complaint ID'}), 400
     
     # Get complaint from database
