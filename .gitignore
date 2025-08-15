@@ -57,11 +57,9 @@ frontend/.pnp/
 frontend/.pnp.js
 frontend/coverage/
 frontend/build/
-
-# React Cache (often huge)
 frontend/node_modules/.cache/
 
-# Environment Files
+# Environment Files (root & frontend)
 .env.local
 .env.development.local
 .env.test.local
