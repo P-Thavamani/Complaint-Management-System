@@ -20,7 +20,7 @@ const ChatbotInterface = () => {
 
     const checkForUpdates = async () => {
       try {
-        const response = await axios.get('/api/complaint-updates/updates');
+        const response = await axios.get('/api/complaint_updates/updates');
         const updates = response.data;
         
         if (updates && updates.length > 0) {

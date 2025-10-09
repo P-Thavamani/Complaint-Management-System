@@ -32,16 +32,8 @@ load_dotenv()
 # Initialize Flask app
 app = Flask(__name__)
 
-# Configure CORS with support for preflight requests
-CORS(app, 
-     resources={r"/api/*": {
-         "origins": ["http://localhost:3000"],  # Explicitly allow frontend origin
-         "allow_headers": ["Content-Type", "Authorization"],
-         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-         "expose_headers": ["Content-Type", "Authorization"],
-         "supports_credentials": True
-     }}, 
-     supports_credentials=True)
+# Configure CORS - Simple configuration to avoid conflicts
+CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
 
 # MongoDB Atlas connection
 print('Connecting to MongoDB Atlas cloud database...')
@@ -117,14 +109,17 @@ if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
 
 # Register blueprints
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
+from api.worker import worker_bp
+
 app.register_blueprint(complaints_bp, url_prefix='/api/complaints')
 app.register_blueprint(admin_bp, url_prefix='/api/admin')
 app.register_blueprint(chatbot_bp, url_prefix='/api/chatbot')
 app.register_blueprint(users_bp, url_prefix='/api/users')
 app.register_blueprint(categories_bp, url_prefix='/api/categories')
-app.register_blueprint(complaint_updates_bp, url_prefix='/api/complaint-updates')
+app.register_blueprint(complaint_updates_bp, url_prefix='/api/complaint_updates')
 app.register_blueprint(rewards_bp, url_prefix='/api/rewards')
 app.register_blueprint(feedback_bp, url_prefix='/api/feedback')
+app.register_blueprint(worker_bp, url_prefix='/api/worker')
 
 # Root route
 @app.route('/')

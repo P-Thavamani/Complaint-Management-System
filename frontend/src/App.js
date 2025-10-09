@@ -17,14 +17,17 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminRewardsPage from './pages/AdminRewardsPage';
+import WorkerDashboard from './pages/WorkerDashboard';
 import ComplaintDetail from './pages/ComplaintDetail';
 import ManageComplaint from './pages/ManageComplaint';
 import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
+import FeedbackPage from './pages/FeedbackPage';
 
-// Protected Route Component
+// Protected Route Components
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AdminRoute from './components/auth/AdminRoute';
+import WorkerRoute from './components/auth/WorkerRoute';
 import { AuthContext } from './context/AuthContext';
 
 function App() {
@@ -60,7 +63,12 @@ function App() {
 				// Only redirect from home/login/register to appropriate dashboard
 				// Don't redirect from other pages like /profile, /complaint/:id, etc.
 				if (location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register') {
-					const destination = isAdmin() ? '/admin' : '/dashboard';
+					let destination = '/dashboard';
+					if (isAdmin()) {
+						destination = '/admin';
+					} else if (user.is_worker) {
+						destination = '/worker';
+					}
 					navigate(destination);
 					return;
 				}
@@ -129,7 +137,32 @@ function App() {
 							</AdminRoute>
 						}
 					/>
+					{/* Worker Routes */}
+					<Route
+						path="/worker"
+						element={
+							<WorkerRoute>
+								<WorkerDashboard />
+							</WorkerRoute>
+						}
+					/>
+					<Route
+						path="/worker/complaints/:id"
+						element={
+							<WorkerRoute>
+								<ComplaintDetail />
+							</WorkerRoute>
+						}
+					/>
 					{/* 404 Route */}
+					<Route
+						path="/feedback/:ticketId"
+						element={
+							<ProtectedRoute>
+								<FeedbackPage />
+							</ProtectedRoute>
+						}
+					/>
 					<Route path="*" element={<NotFound />} />
 				</Routes>
 			</main>

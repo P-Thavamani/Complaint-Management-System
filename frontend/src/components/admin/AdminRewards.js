@@ -47,19 +47,21 @@ const AdminRewards = () => {
 
     try {
       setSubmitting(true);
+      console.log('Sending reward points to:', selectedUser, points, reason.trim());
       const response = await axios.post('/api/rewards/award', {
         user_id: selectedUser,
         points: parseInt(points),
         reason: reason.trim()
       });
 
+      console.log('Reward response:', response.data);
       toast.success(`Successfully awarded ${points} points`);
       setSelectedUser('');
       setPoints(10);
       setReason('');
     } catch (error) {
       console.error('Error awarding points:', error);
-      toast.error('Failed to award points');
+      toast.error(error.response?.data?.error || 'Failed to award points');
     } finally {
       setSubmitting(false);
     }
@@ -86,7 +88,7 @@ const AdminRewards = () => {
               onChange={(e) => setSelectedUser(e.target.value)}
               required
             >
-              <option value="">-- Select a user --</option>
+              <option value="" key="default-option">-- Select a user --</option>
               {users.map((user) => (
                 <option key={user.id} value={user.id}>
                   {user.name} ({user.email})

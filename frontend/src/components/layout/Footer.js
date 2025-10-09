@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { AuthContext } from '../../context/AuthContext';
 
 const Footer = () => {
+  const { user, isAdmin, isWorker } = useContext(AuthContext);
   const currentYear = new Date().getFullYear();
 
   return (
@@ -31,21 +33,42 @@ const Footer = () => {
                   Home
                 </Link>
               </li>
-              <li>
-                <Link to="/dashboard" className="text-gray-300 hover:text-white transition-colors duration-200">
-                  Dashboard
-                </Link>
-              </li>
-              <li>
-                <Link to="/login" className="text-gray-300 hover:text-white transition-colors duration-200">
-                  Login
-                </Link>
-              </li>
-              <li>
-                <Link to="/register" className="text-gray-300 hover:text-white transition-colors duration-200">
-                  Register
-                </Link>
-              </li>
+              {user ? (
+                <>
+                  {isAdmin() ? (
+                    <li>
+                      <Link to="/admin" className="text-gray-300 hover:text-white transition-colors duration-200">
+                        Admin Dashboard
+                      </Link>
+                    </li>
+                  ) : isWorker() ? (
+                    <li>
+                      <Link to="/worker" className="text-gray-300 hover:text-white transition-colors duration-200">
+                        Worker Dashboard
+                      </Link>
+                    </li>
+                  ) : (
+                    <li>
+                      <Link to="/dashboard" className="text-gray-300 hover:text-white transition-colors duration-200">
+                        Dashboard
+                      </Link>
+                    </li>
+                  )}
+                </>
+              ) : (
+                <>
+                  <li>
+                    <Link to="/login" className="text-gray-300 hover:text-white transition-colors duration-200">
+                      Login
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/register" className="text-gray-300 hover:text-white transition-colors duration-200">
+                      Register
+                    </Link>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
 

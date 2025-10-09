@@ -111,7 +111,7 @@ const Chatbot = ({ onClose, notifications = [] }) => {
 			if (optionId.startsWith('view_status_')) {
 				const complaintId = optionId.replace('view_status_', '');
 				try {
-					const response = await axios.get(`/api/complaint-updates/status/${complaintId}`);
+					const response = await axios.get(`/api/complaint_updates/status/${complaintId}`);
 					const statusData = response.data;
 					let statusMessage = `**Ticket #${statusData.ticketNumber} Status**\n\n`;
 					statusMessage += `**Subject:** ${statusData.subject}\n`;
@@ -193,7 +193,7 @@ const Chatbot = ({ onClose, notifications = [] }) => {
 				const complaintId = optionId.replace('mark_as_resolved_', '');
 				setIsLoading(true);
 				try {
-					await axios.post(`/api/complaint-updates/resolve/${complaintId}`, {}, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+					await axios.post(`/api/complaint_updates/resolve/${complaintId}`, {}, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
 					toast.success('Complaint marked as resolved successfully!');
 					const confirmationMessage = {
 						id: uuidv4(),

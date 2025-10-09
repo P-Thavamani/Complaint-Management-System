@@ -13,13 +13,14 @@ def is_valid_email(email):
     return re.match(email_regex, email) is not None
 
 # Helper function to generate JWT token
-def generate_token(user_id, is_admin=False):
-    print(f"Generating token for user {user_id} with is_admin={is_admin}")
+def generate_token(user_id, is_admin=False, is_worker=False):
+    print(f"Generating token for user {user_id} with is_admin={is_admin}, is_worker={is_worker}")
     payload = {
         'exp': datetime.utcnow() + timedelta(days=1),
         'iat': datetime.utcnow(),
         'sub': str(user_id),
-        'admin': is_admin
+        'admin': is_admin,
+        'worker': is_worker
     }
     return jwt.encode(
         payload,
@@ -64,6 +65,7 @@ def register():
             'email': data['email'],
             'password': hashed_password,
             'is_admin': False,
+            'is_worker': data.get('is_worker', False),
             'phone': data.get('phone', ''),
             'department': data.get('department', ''),
             'createdAt': datetime.utcnow(),
@@ -118,8 +120,12 @@ def login():
     if not user or not pbkdf2_sha256.verify(data['password'], user['password']):
         return jsonify({'error': 'Invalid email or password'}), 401
     
-    # Generate token
-    token = generate_token(user['_id'], user.get('is_admin', False))
+    # Check if this is a worker login
+    is_worker = user.get('role') == 'worker' or user.get('is_worker', False)
+    is_admin = user.get('is_admin', False)
+    
+    # Generate token with appropriate roles
+    token = generate_token(user['_id'], is_admin, is_worker)
     
     # Update last login
     db.users.update_one(
@@ -134,10 +140,58 @@ def login():
             'id': str(user['_id']),
             'name': user['name'],
             'email': user['email'],
-            'is_admin': user.get('is_admin', False),
+            'is_admin': is_admin,
+            'is_worker': is_worker,
+            'role': user.get('role', 'user'),
             'phone': user.get('phone', ''),
             'department': user.get('department', ''),
             'createdAt': user.get('createdAt')
+        }
+    })
+
+@auth_bp.route('/worker-login', methods=['POST'])
+def worker_login():
+    data = request.get_json()
+    
+    # Validate required fields
+    if not all(k in data for k in ('email', 'password')):
+        return jsonify({'message': 'Missing email or password'}), 400
+    
+    # Find worker by email
+    db = current_app.config['db']
+    worker = db.users.find_one({
+        'email': data['email'],
+        '$or': [
+            {'role': 'worker'},
+            {'is_worker': True}
+        ]
+    })
+    
+    # Check if worker exists and password is correct
+    if not worker or not pbkdf2_sha256.verify(data['password'], worker['password']):
+        return jsonify({'error': 'Invalid email or password'}), 401
+    
+    # Generate token with worker role
+    token = generate_token(worker['_id'], worker.get('is_admin', False), True)
+    
+    # Update last login
+    db.users.update_one(
+        {'_id': worker['_id']},
+        {'$set': {'lastLogin': datetime.utcnow()}}
+    )
+    
+    # Return worker info and token
+    return jsonify({
+        'token': token,
+        'user': {
+            'id': str(worker['_id']),
+            'name': worker['name'],
+            'email': worker['email'],
+            'is_admin': worker.get('is_admin', False),
+            'is_worker': True,
+            'role': worker.get('role', 'worker'),
+            'department': worker.get('department', ''),
+            'createdAt': worker.get('createdAt')
         }
     })
 
@@ -164,13 +218,19 @@ def verify_token():
         if not user:
             return jsonify({'error': 'User not found'}), 404
         
+        # Check roles from token and user record
+        is_worker = payload.get('worker', False) or user.get('role') == 'worker' or user.get('is_worker', False)
+        is_admin = payload.get('admin', False) or user.get('is_admin', False)
+        
         # Return user info
         return jsonify({
             'user': {
                 'id': str(user['_id']),
                 'name': user['name'],
                 'email': user['email'],
-                'is_admin': user.get('is_admin', False),
+                'is_admin': is_admin,
+                'is_worker': is_worker,
+                'role': user.get('role', 'user'),
                 'phone': user.get('phone', ''),
                 'department': user.get('department', ''),
                 'createdAt': user.get('createdAt')

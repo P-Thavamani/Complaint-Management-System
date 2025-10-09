@@ -192,8 +192,9 @@ def send_ticket_resolved_notification(user_email, user_name, ticket_id, resoluti
     """
     Send email notification when ticket is resolved
     """
-    email_subject = f"Ticket Resolved - #{ticket_id[-6:].upper()}"
+    email_subject = f"✅ Ticket Resolved - #{ticket_id[-6:].upper()} - We Value Your Feedback"
     
+    feedback_url = f"http://localhost:3000/feedback/{ticket_id}"
     resolution_text = f"\n\nResolution Details:\n{resolution_message}" if resolution_message else ""
     
     email_body = f"""
@@ -203,6 +204,11 @@ Great news! Your ticket has been successfully resolved.
 
 Ticket ID: #{ticket_id[-6:].upper()}
 Status: Resolved{resolution_text}
+
+We value your feedback! Please take a moment to share your experience:
+{feedback_url}
+
+Your feedback helps us improve our service quality and recognize outstanding performance.
 
 We hope this resolves your issue completely. If you have any further questions or if the issue persists, please don't hesitate to create a new ticket.
 
@@ -234,6 +240,108 @@ Support Team
     """
     
     return send_email(user_email, email_subject, email_body, html_body)
+
+def send_feedback_request(user_email, user_name, complaint_id, feedback_url):
+    """
+    Send a dedicated feedback request email
+    """
+    email_subject = "Your Feedback Matters - Share Your Experience"
+    
+    email_body = f"""
+Dear {user_name},
+
+Thank you for using our Complaint Management System. We value your feedback and would love to hear about your experience.
+
+Please take a moment to share your thoughts about our service by clicking the link below:
+{feedback_url}
+
+Your feedback helps us:
+- Improve our service quality
+- Recognize outstanding performance
+- Identify areas for improvement
+
+Thank you for helping us serve you better.
+
+Best regards,
+Support Team
+    """
+    
+    html_body = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #2563eb;">Your Feedback Matters</h2>
+        <p>Dear {user_name},</p>
+        <p>Thank you for using our Complaint Management System. We value your feedback and would love to hear about your experience.</p>
+        
+        <div style="background-color: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+            <p style="margin-bottom: 20px;">Please take a moment to share your thoughts about our service:</p>
+            <a href="{feedback_url}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Provide Feedback</a>
+        </div>
+        
+        <p>Your feedback helps us:</p>
+        <ul style="list-style-type: disc; margin-left: 20px;">
+            <li>Improve our service quality</li>
+            <li>Recognize outstanding performance</li>
+            <li>Identify areas for improvement</li>
+        </ul>
+        
+        <p>Thank you for helping us serve you better.</p>
+        <p><strong>Best regards,<br>Support Team</strong></p>
+    </div>
+    """
+    
+    return send_email(user_email, email_subject, email_body, html_body)
+
+def send_thank_you_notifications(user_email, user_phone=None, feedback_url=None):
+    """
+    Send thank you notifications via email and WhatsApp
+    """
+    # Email notification
+    email_subject = "Thank You for Your Patience"
+    
+    feedback_section = ""
+    if feedback_url:
+        feedback_section = f"""
+
+We value your feedback! Please share your experience with us:
+{feedback_url}
+
+Your feedback helps us improve our service and recognize outstanding performance."""
+    
+    email_body = f"""
+Dear Valued Customer,
+
+Thank you for giving us the opportunity to assist you. We appreciate your patience throughout the resolution process.{feedback_section}
+
+If you have any other concerns in the future, please don't hesitate to reach out to us again.
+
+Best regards,
+Support Team
+    """
+    
+    html_body = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #059669;">Thank You for Your Patience</h2>
+        <p>Dear Valued Customer,</p>
+        <p>Thank you for giving us the opportunity to assist you. We appreciate your patience throughout the resolution process.</p>
+        
+        {f'''<div style="background-color: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+            <p style="margin-bottom: 20px;">We value your feedback! Please share your experience with us:</p>
+            <a href="{feedback_url}" style="background-color: #059669; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Provide Feedback</a>
+        </div>''' if feedback_url else ''}
+        
+        <p>If you have any other concerns in the future, please don't hesitate to reach out to us again.</p>
+        <p><strong>Best regards,<br>Support Team</strong></p>
+    </div>
+    """
+    
+    send_email(user_email, email_subject, email_body, html_body)
+    
+    # WhatsApp notification if phone number is provided
+    if user_phone:
+        whatsapp_message = "Thank you for your patience. We're glad we could help resolve your issue."
+        if feedback_url:
+            whatsapp_message += f"\n\nWe value your feedback! Please share your experience with us: {feedback_url}"
+        send_whatsapp(user_phone, whatsapp_message)
 
 def send_ticket_escalation_notification(user_email, user_name, ticket_id, reason=None):
     """

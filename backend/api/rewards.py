@@ -83,43 +83,83 @@ def admin_award_points(current_user):
         db = current_app.config['db']
         
         # Convert user_id to ObjectId
-        user_id = ObjectId(data['user_id'])
+        try:
+            user_id = ObjectId(data['user_id'])
+        except Exception as e:
+            return jsonify({'error': f'Invalid user ID format: {str(e)}'}), 400
         
         # Get user
         user = db.users.find_one({'_id': user_id})
         if not user:
             return jsonify({'error': 'User not found'}), 404
         
+        points = int(data['points'])
+        reason = data['reason']
+        
         # Create reward entry
         reward_entry = {
             'user_id': user_id,
-            'points': data['points'],
+            'points': points,
             'action_type': 'admin_award',
-            'complaint_id': ObjectId(data['complaint_id']) if 'complaint_id' in data else None,
             'timestamp': datetime.utcnow(),
-            'description': data['reason'],
+            'description': reason,
             'awarded_by': ObjectId(current_user['id'])
         }
         
+        # Add complaint_id if provided
+        if 'complaint_id' in data and data['complaint_id']:
+            try:
+                reward_entry['complaint_id'] = ObjectId(data['complaint_id'])
+            except:
+                # If complaint_id is invalid, just don't include it
+                pass
+        
         # Insert reward entry
-        db.rewards.insert_one(reward_entry)
+        result = db.rewards.insert_one(reward_entry)
         
         # Update user's total points
         current_points = user.get('reward_points', 0)
-        new_total = current_points + data['points']
+        new_total = current_points + points
         
         db.users.update_one(
             {'_id': user_id},
             {'$set': {'reward_points': new_total}}
         )
         
+        # Send notification email to user about the reward
+        from utils.notifications import send_email
+        try:
+            send_email(
+                recipient_email=user['email'],
+                subject=f"🎉 You've earned {points} reward points!",
+                body=f"Congratulations! You have been awarded {points} points by an administrator.\n\nReason: {reason}\n\nYour new total: {new_total} points",
+                html=f"""
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h2 style="color: #4f46e5;">🎉 Reward Points Awarded!</h2>
+                    <p>Congratulations {user['name']}!</p>
+                    <p>You have been awarded <strong>{points} points</strong> by an administrator.</p>
+                    <p><strong>Reason:</strong> {reason}</p>
+                    <p><strong>Your new total:</strong> {new_total} points</p>
+                    <p>Keep up the great work!</p>
+                </div>
+                """
+            )
+        except Exception as email_error:
+            print(f"Failed to send reward notification email: {email_error}")
+        
         return jsonify({
             'awarded': True,
+            'success': True,
             'user_id': str(user_id),
-            'points': data['points'],
+            'user_name': user['name'],
+            'points': points,
             'total_points': new_total,
-            'message': f"Awarded {data['points']} points to {user['name']}"
+            'message': f"Successfully awarded {points} points to {user['name']}",
+            'reward_id': str(result.inserted_id)
         })
         
     except Exception as e:
+        print(f"Error awarding points: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500

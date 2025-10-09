@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 
 const Navbar = ({ onReload }) => {
-	const { user, logout, isAdmin } = useContext(AuthContext);
+	const { user, logout, isAdmin, isWorker } = useContext(AuthContext);
 
 	return (
 		<nav className="bg-white shadow-md">
@@ -23,17 +23,21 @@ const Navbar = ({ onReload }) => {
 							Home
 						</Link>
 						{user ? (
-							<>
-								{isAdmin() ? (
-									<Link to="/admin" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
-										Admin Dashboard
-									</Link>
-								) : (
-									<Link to="/dashboard" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
-										User Dashboard
-									</Link>
-								)}
-							</>
+						<>
+							{isAdmin() ? (
+								<Link to="/admin" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
+									Admin Dashboard
+								</Link>
+							) : isWorker() ? (
+								<Link to="/worker" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
+									Worker Dashboard
+								</Link>
+							) : (
+								<Link to="/dashboard" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
+									User Dashboard
+								</Link>
+							)}
+						</>
 						) : (
 							<>
 								<Link to="/login" className="text-gray-600 hover:text-primary-600 transition-colors duration-200">

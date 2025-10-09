@@ -4,7 +4,15 @@ import jwt_decode from 'jwt-decode';
 import axios from '../services/axios';
 import { toast } from 'react-toastify';
 
-export const AuthContext = createContext();
+export const AuthContext = createContext({
+	user: null,
+	loading: true,
+	isAdmin: () => false,
+	isWorker: () => false,
+	login: () => {},
+	logout: () => {},
+	fetchUserProfile: () => {},
+});
 
 export const AuthProvider = ({ children }) => {
 	const [user, setUser] = useState(null);
@@ -77,6 +85,8 @@ export const AuthProvider = ({ children }) => {
 			toast.success('Login successful!');
 			if (decoded.is_admin) {
 				navigate('/admin');
+			} else if (decoded.is_worker) {
+				navigate('/worker');
 			} else {
 				navigate('/dashboard');
 			}
@@ -121,6 +131,11 @@ export const AuthProvider = ({ children }) => {
 		return user && user.is_admin === true;
 	};
 
+	// Check if user is worker
+	const isWorker = () => {
+		return user && user.is_worker === true;
+	};
+
 	// Update user data after profile changes
 	const updateUser = (userData) => {
 		setUser(prevUser => ({
@@ -140,6 +155,7 @@ export const AuthProvider = ({ children }) => {
 			register,
 			logout,
 			isAdmin,
+			isWorker,
 			updateUser,
 			fetchUserProfile
 		}}>

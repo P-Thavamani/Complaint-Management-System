@@ -1,10 +1,10 @@
-from flask import Flask, Blueprint, request, jsonify, current_app
+from flask import Flask, Blueprint, request, jsonify, current_app, url_for
 from bson.objectid import ObjectId
 from datetime import datetime, timedelta
 from utils.auth_middleware import admin_required
-from utils.notifications import send_thank_you_notifications, send_status_change_notification, send_ticket_resolved_notification, send_ticket_escalation_notification
+from utils.notifications import send_thank_you_notifications, send_status_change_notification, send_ticket_resolved_notification, send_ticket_escalation_notification, send_feedback_request
 from utils.rewards import award_points
-from flask_cors import CORS
+from werkzeug.security import generate_password_hash
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -200,10 +200,20 @@ def manage_complaint(current_user, complaint_id):
                     resolution_message=data.get('resolution')
                 )
                 
-                # Send thank you notifications
+                # Send thank you notifications with feedback link
+                feedback_url = url_for('feedback_bp.submit_feedback', complaint_id=complaint_id, _external=True)
                 send_thank_you_notifications(
                     user_email=user['email'],
-                    user_phone=user.get('phone')
+                    user_phone=user.get('phone'),
+                    feedback_url=feedback_url
+                )
+                
+                # Send separate feedback request
+                send_feedback_request(
+                    user_email=user['email'],
+                    user_name=user['name'],
+                    complaint_id=complaint_id,
+                    feedback_url=feedback_url
                 )
                 
                 # Award points for resolving a ticket
@@ -261,11 +271,11 @@ def manage_complaint(current_user, complaint_id):
             'isSystem': True
         }
         
+        # Add comment to complaint
         db.complaints.update_one(
             {'_id': complaint_obj_id},
             {'$push': {'comments': system_comment}}
         )
-    
     # Get the updated complaint
     updated_complaint = db.complaints.find_one({'_id': complaint_obj_id})
     
@@ -281,7 +291,124 @@ def manage_complaint(current_user, complaint_id):
     # Format complaint for response
     formatted_complaint = format_complaint(updated_complaint)
     
-    return jsonify(formatted_complaint)
+    return jsonify({
+        'message': 'Complaint updated successfully',
+        'complaint': formatted_complaint
+    }), 200
+
+
+@admin_bp.route('/workers', methods=['GET'])
+@admin_required
+def get_workers(current_user):
+    db = current_app.config['db']
+    workers = list(db.users.find({'role': 'worker'}))
+    
+    formatted_workers = [{
+        'id': str(worker['_id']),
+        'name': worker['name'],
+        'email': worker['email'],
+        'active': worker.get('active', True),
+        'created_at': worker.get('created_at', datetime.utcnow()).isoformat()
+    } for worker in workers]
+    
+    return jsonify(formatted_workers)
+
+@admin_bp.route('/workers', methods=['POST'])
+@admin_required
+def create_worker(current_user):
+    data = request.get_json()
+    
+    # Validate required fields
+    required_fields = ['name', 'email', 'password']
+    if not all(field in data for field in required_fields):
+        return jsonify({'error': 'Missing required fields'}), 400
+    
+    db = current_app.config['db']
+    
+    # Check if email already exists
+    if db.users.find_one({'email': data['email']}):
+        return jsonify({'error': 'Email already exists'}), 400
+    
+    # Create worker user
+    worker = {
+        'name': data['name'],
+        'email': data['email'],
+        'password': generate_password_hash(data['password']),
+        'role': 'worker',
+        'active': True,
+        'created_at': datetime.utcnow()
+    }
+    
+    result = db.users.insert_one(worker)
+    
+    return jsonify({
+        'id': str(result.inserted_id),
+        'name': worker['name'],
+        'email': worker['email'],
+        'message': 'Worker account created successfully'
+    }), 201
+
+@admin_bp.route('/workers/<worker_id>', methods=['PUT'])
+@admin_required
+def update_worker(current_user, worker_id):
+    data = request.get_json()
+    db = current_app.config['db']
+    
+    try:
+        worker_obj_id = ObjectId(worker_id)
+    except:
+        return jsonify({'error': 'Invalid worker ID'}), 400
+    
+    # Get worker
+    worker = db.users.find_one({'_id': worker_obj_id, 'role': 'worker'})
+    if not worker:
+        return jsonify({'error': 'Worker not found'}), 404
+    
+    # Fields that can be updated
+    allowed_fields = ['name', 'email', 'active', 'password']
+    update_data = {k: v for k, v in data.items() if k in allowed_fields}
+    
+    # Hash password if provided
+    if 'password' in update_data:
+        update_data['password'] = generate_password_hash(update_data['password'])
+    
+    # Update worker
+    db.users.update_one(
+        {'_id': worker_obj_id},
+        {'$set': update_data}
+    )
+    
+    return jsonify({'message': 'Worker updated successfully'})
+
+@admin_bp.route('/workers/<worker_id>', methods=['DELETE'])
+@admin_required
+def delete_worker(current_user, worker_id):
+    db = current_app.config['db']
+    
+    try:
+        worker_obj_id = ObjectId(worker_id)
+    except:
+        return jsonify({'error': 'Invalid worker ID'}), 400
+    
+    # Get worker
+    worker = db.users.find_one({'_id': worker_obj_id, 'role': 'worker'})
+    if not worker:
+        return jsonify({'error': 'Worker not found'}), 404
+    
+    # Instead of deleting, deactivate the worker
+    db.users.update_one(
+        {'_id': worker_obj_id},
+        {'$set': {'active': False}}
+    )
+    
+    # Reassign active complaints
+    db.complaints.update_many(
+        {'assigned_to': worker_obj_id, 'status': {'$in': ['open', 'in_progress']}},
+        {'$set': {'assigned_to': None, 'status': 'open'}}
+    )
+    
+    return jsonify({'message': 'Worker deactivated successfully'})
+
 
 @admin_bp.route('/complaints/<complaint_id>', methods=['DELETE'])
 @admin_required
@@ -326,16 +453,26 @@ def get_all_users(current_user):
     # Format users for response
     formatted_users = []
     for user in users:
-        user['_id'] = str(user['_id'])
+        formatted_user = {
+            'id': str(user['_id']),  # Add id field for frontend
+            '_id': str(user['_id']),
+            'name': user.get('name', 'Unknown'),
+            'email': user.get('email', 'Unknown'),
+            'reward_points': user.get('reward_points', 0),
+            'is_worker': user.get('is_worker', False),
+            'role': user.get('role', 'user')
+        }
         
         # Format dates
         for date_field in ['createdAt', 'updatedAt', 'lastLogin']:
             if date_field in user and user[date_field]:
-                user[date_field] = user[date_field].isoformat()
+                formatted_user[date_field] = user[date_field].isoformat()
         
-        formatted_users.append(user)
+        formatted_users.append(formatted_user)
     
     return jsonify(formatted_users)
+
+
 
 @admin_bp.route('/agents', methods=['GET'])
 @admin_required

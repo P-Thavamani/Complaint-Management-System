@@ -24,14 +24,30 @@ def award_points(user_id, action_type, complaint_id=None):
         
         # Points for different actions
         points_map = {
+            # User actions
             'create_ticket': 10,      # Creating a new ticket
-            'resolved_ticket': 5,     # When a ticket is resolved
-            'feedback': 3,            # Providing feedback
+            'feedback': 5,            # Basic feedback submission
+            'detailed_feedback': 10,   # Feedback with detailed comments
             'monthly_active': 15,     # Monthly activity bonus
-            # Severity-based points
-            'high_severity': 10,      # High severity ticket
-            'medium_severity': 5,     # Medium severity ticket
-            'low_severity': 3         # Low severity ticket
+            
+            # Worker actions
+            'claim_ticket': 5,        # Claiming a ticket
+            'resolved_ticket': 20,    # When a ticket is resolved
+            'quick_resolution': 30,   # Resolving ticket within 24 hours
+            'positive_feedback': 15,  # Receiving 4-star feedback
+            
+            # Severity-based points (for workers)
+            'high_severity': 15,      # High severity ticket
+            'medium_severity': 10,    # Medium severity ticket
+            'low_severity': 5,        # Low severity ticket
+            
+            # Special achievements
+            'first_resolution': 50,   # First ticket resolution
+            'five_star_rating': 25,   # Getting a 5-star rating
+            'five_tickets_week': 75,  # Resolving 5 tickets in a week
+            'ten_tickets_week': 150,  # Resolving 10 tickets in a week
+            'zero_escalation': 100,   # No escalations in a week with 5+ tickets
+            'perfect_feedback': 200   # 5 consecutive 5-star ratings
         }
         
         # Get base points for the action
@@ -168,28 +184,34 @@ def get_reward_levels():
     """
     return [
         {
-            'level': 'Bronze',
+            'level': 'Rookie Support Agent',
             'min_points': 0,
             'max_points': 99,
-            'benefits': ['Basic support']
+            'benefits': ['Basic support access']
         },
         {
-            'level': 'Silver',
+            'level': 'Support Specialist',
             'min_points': 100,
             'max_points': 299,
-            'benefits': ['Priority support', 'Monthly newsletter']
+            'benefits': ['Priority support', 'Monthly training']
         },
         {
-            'level': 'Gold',
+            'level': 'Senior Support Specialist',
             'min_points': 300,
-            'max_points': 699,
-            'benefits': ['Priority support', 'Monthly newsletter', 'Exclusive webinars']
+            'max_points': 599,
+            'benefits': ['Priority support', 'Monthly training', 'Exclusive webinars']
         },
         {
-            'level': 'Platinum',
-            'min_points': 700,
+            'level': 'Support Expert',
+            'min_points': 600,
+            'max_points': 999,
+            'benefits': ['VIP support', 'Monthly training', 'Exclusive webinars', 'Early feature access']
+        },
+        {
+            'level': 'Support Master',
+            'min_points': 1000,
             'max_points': float('inf'),
-            'benefits': ['VIP support', 'Monthly newsletter', 'Exclusive webinars', 'Early access to new features']
+            'benefits': ['VIP support', 'Monthly training', 'Exclusive webinars', 'Early feature access', 'Recognition program']
         }
     ]
 
@@ -213,44 +235,55 @@ def send_reward_notification(user_email, points, total_points, action_type, curr
         action_display = action_type.replace('_', ' ').title()
         
         # Email subject
-        subject = f"You've Earned {points} Reward Points!"
+        subject = f"Achievement Unlocked: {points} Reward Points Earned! 🏆"
         
-        # Email body
-        body = f"""
-        Congratulations!
-        
-        You've earned {points} reward points for {action_display}.
-        
-        Your current reward status:
-        - Total Points: {total_points}
-        - Current Level: {current_level}
-        
-        Keep participating to earn more points and unlock exclusive benefits!
-        
-        Thank you for using our Complaint Management System.
-        """
+        # Get achievement description
+        achievement_desc = {
+            'claim_ticket': 'Taking initiative to help users',
+            'resolved_ticket': 'Successfully resolving user issues',
+            'quick_resolution': 'Lightning-fast problem solving',
+            'positive_feedback': 'Delivering exceptional service',
+            'high_severity': 'Handling critical issues',
+            'first_resolution': 'Your first successful resolution',
+            'five_star_rating': 'Achieving excellence in service',
+            'ten_tickets_week': 'Outstanding weekly performance',
+            'zero_escalation': 'Maintaining high quality standards'
+        }.get(action_type, 'Contributing to the community')
         
         # HTML email content
         html = f"""
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #4f46e5;">Congratulations!</h2>
-            
-            <div style="margin: 20px 0; padding: 20px; background-color: #f3f4f6; border-radius: 5px; text-align: center;">
-                <h1 style="color: #4f46e5; font-size: 36px; margin: 0;">{points}</h1>
-                <p style="font-size: 18px; margin: 5px 0;">Reward Points Earned!</p>
-                <p>For: {action_display}</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            <div style="background-color: #4f46e5; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 24px;">🎉 Achievement Unlocked! 🎉</h1>
             </div>
             
-            <div style="margin: 20px 0;">
-                <h3>Your Current Reward Status:</h3>
-                <p><strong>Total Points:</strong> {total_points}</p>
-                <p><strong>Current Level:</strong> <span style="color: #4f46e5;">{current_level}</span></p>
+            <div style="padding: 30px;">
+                <div style="background-color: #f3f4f6; border-radius: 10px; padding: 20px; text-align: center; margin-bottom: 30px;">
+                    <div style="font-size: 48px; color: #4f46e5; font-weight: bold; margin-bottom: 10px;">+{points}</div>
+                    <div style="font-size: 20px; color: #374151;">Reward Points</div>
+                    <div style="margin-top: 15px; color: #6b7280;">{achievement_desc}</div>
+                </div>
+                
+                <div style="background-color: #ffffff; border: 2px solid #e5e7eb; border-radius: 10px; padding: 20px; margin-bottom: 30px;">
+                    <h2 style="color: #111827; margin-top: 0; font-size: 20px;">Your Progress</h2>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                        <div style="color: #374151;">Total Points:</div>
+                        <div style="color: #4f46e5; font-weight: bold;">{total_points}</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <div style="color: #374151;">Current Level:</div>
+                        <div style="color: #4f46e5; font-weight: bold;">{current_level}</div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; color: #6b7280; font-size: 14px;">
+                    <p>Keep up the great work! Your contributions make a difference.</p>
+                    <p>Check your dashboard for more achievements to unlock.</p>
+                </div>
             </div>
             
-            <p>Keep participating to earn more points and unlock exclusive benefits!</p>
-            
-            <div style="margin-top: 20px; padding: 15px; background-color: #f3f4f6; border-radius: 5px;">
-                <p style="margin: 0;"><strong>Thank you for using our Complaint Management System.</strong></p>
+            <div style="background-color: #f9fafb; padding: 20px; border-radius: 0 0 10px 10px; text-align: center;">
+                <p style="color: #4b5563; margin: 0;">Complaint Management System</p>
             </div>
         </div>
         """

@@ -10,28 +10,53 @@ complaint_updates_bp = Blueprint('complaint_updates', __name__)
 
 
 
-@complaint_updates_bp.route('/check-escalations', methods=['POST'])
+@complaint_updates_bp.route('/check-escalations', methods=['GET', 'POST'])
 @token_required
 @admin_required
 def trigger_escalation_check(current_user):
     """
-    Manually trigger the escalation check process.
-    This endpoint is only accessible by administrators.
+    Admin endpoint to manually trigger the escalation check
     """
     try:
         # Run the escalation check
         escalated_complaints = check_and_escalate_complaints()
         
-        # Return the results
+        # Format the escalated complaints for the response
+        formatted_complaints = []
+        if escalated_complaints:
+            db = current_app.config['db']
+            for complaint in escalated_complaints:
+                try:
+                    # Get the complaint ID directly if it's an ObjectId or from the dict if it's an object
+                    complaint_id = complaint if isinstance(complaint, ObjectId) else complaint.get('complaintId')
+                    complaint_obj = db.complaints.find_one({'_id': ObjectId(complaint_id)})
+                    
+                    if complaint_obj:
+                        formatted_complaint = {
+                            'id': str(complaint_obj['_id']),
+                            'subject': complaint_obj.get('subject', 'No subject'),
+                            'status': 'escalated',
+                            'priority': complaint_obj.get('priority', 'medium'),
+                            'category': complaint_obj.get('category', 'General'),
+                            'escalatedAt': complaint_obj.get('escalatedAt', datetime.utcnow()).isoformat()
+                        }
+                        formatted_complaints.append(formatted_complaint)
+                except Exception as complaint_error:
+                    print(f"Error formatting complaint {complaint_id}: {str(complaint_error)}")
+        
         return jsonify({
             'success': True,
             'message': f'Escalation check completed. {len(escalated_complaints)} complaints were escalated.',
-            'escalated_complaints': escalated_complaints
+            'escalated_complaints': formatted_complaints
         }), 200
     except Exception as e:
+        error_message = f"Error during escalation check: {str(e)}"
+        print(error_message)
+        import traceback
+        print(traceback.format_exc())
         return jsonify({
             'success': False,
-            'message': f'Error during escalation check: {str(e)}'
+            'message': error_message
         }), 500
 
 @complaint_updates_bp.route('/updates', methods=['GET'])
@@ -248,113 +273,3 @@ def mark_complaint_resolved(current_user, complaint_id):
     
     return jsonify(response)
 
-@complaint_updates_bp.route('/check-escalations', methods=['GET'])
-@admin_required
-def check_escalations(current_user):
-    """
-    Check for complaints that need to be escalated based on time thresholds and priority
-    This endpoint would typically be called by a scheduled job
-    """
-    db = current_app.config['db']
-    
-    # Define time thresholds for escalation based on priority
-    thresholds = {
-        'high': 24,  # hours
-        'medium': 72,  # hours
-        'low': 120  # hours
-    }
-    
-    # Get current time
-    now = datetime.utcnow()
-    
-    # Find complaints that need to be escalated
-    escalated_complaints = []
-    
-    # Check high priority complaints first
-    high_priority_threshold = now - timedelta(hours=thresholds['high'])
-    high_priority_complaints = list(db.complaints.find({
-        'status': {'$in': ['pending', 'in-progress']},
-        'priority': 'high',
-        'createdAt': {'$lt': high_priority_threshold},
-        'status': {'$ne': 'escalated'}
-    }))
-    
-    # Check medium priority complaints
-    medium_priority_threshold = now - timedelta(hours=thresholds['medium'])
-    medium_priority_complaints = list(db.complaints.find({
-        'status': {'$in': ['pending', 'in-progress']},
-        'priority': 'medium',
-        'createdAt': {'$lt': medium_priority_threshold},
-        'status': {'$ne': 'escalated'}
-    }))
-    
-    # Check low priority complaints
-    low_priority_threshold = now - timedelta(hours=thresholds['low'])
-    low_priority_complaints = list(db.complaints.find({
-        'status': {'$in': ['pending', 'in-progress']},
-        'priority': 'low',
-        'createdAt': {'$lt': low_priority_threshold},
-        'status': {'$ne': 'escalated'}
-    }))
-    
-    # Combine all complaints that need escalation
-    complaints_to_escalate = high_priority_complaints + medium_priority_complaints + low_priority_complaints
-    
-    # Process each complaint for escalation
-    for complaint in complaints_to_escalate:
-        # Update complaint status to escalated
-        db.complaints.update_one(
-            {'_id': complaint['_id']},
-            {
-                '$set': {
-                    'status': 'escalated',
-                    'escalatedAt': now,
-                    'updatedAt': now
-                }
-            }
-        )
-        
-        # Add system comment about escalation
-        system_comment = {
-            '_id': ObjectId(),
-            'content': f"Complaint automatically escalated due to exceeding time threshold for {complaint.get('priority', 'unknown')} priority.",
-            'user_id': ObjectId(current_user['id']),
-            'user': {
-                'name': 'System',
-                'email': 'system@example.com'
-            },
-            'createdAt': now,
-            'isSystem': True
-        }
-        
-        db.complaints.update_one(
-            {'_id': complaint['_id']},
-            {'$push': {'comments': system_comment}}
-        )
-        
-        # Get user details for notification
-        user = db.users.find_one({'_id': complaint['user_id']})
-        if user:
-            # Send notification to user
-            send_notification(
-                user_email=user['email'],
-                subject="Your complaint has been escalated",
-                message=f"Your complaint #{str(complaint['_id'])[-6:].upper()} has been escalated to higher management due to exceeding the resolution time threshold."
-            )
-        
-        # Format complaint for response
-        escalated_complaint = {
-            'complaintId': str(complaint['_id']),
-            'ticketNumber': str(complaint['_id'])[-6:].upper(),
-            'subject': complaint.get('subject', 'No subject'),
-            'priority': complaint.get('priority', 'unknown'),
-            'createdAt': complaint.get('createdAt', datetime.min).isoformat(),
-            'escalatedAt': now.isoformat()
-        }
-        
-        escalated_complaints.append(escalated_complaint)
-    
-    return jsonify({
-        'escalated_count': len(escalated_complaints),
-        'escalated_complaints': escalated_complaints
-    })

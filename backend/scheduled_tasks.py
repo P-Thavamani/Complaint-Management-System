@@ -65,7 +65,7 @@ def check_and_escalate_complaints():
         threshold_hours = thresholds.get(priority, 120)  # Default to 120 hours if priority not found
         
         # Calculate the time difference
-        time_diff = datetime.now() - created_at
+        time_diff = datetime.utcnow() - created_at
         hours_diff = time_diff.total_seconds() / 3600
         
         # Check if the complaint needs escalation
@@ -104,17 +104,27 @@ def check_and_escalate_complaints():
             user = db.users.find_one({'_id': user_id}) if user_id else None
             
             if user:
-                notification_message = f"Your complaint (ID: {str(complaint_id)[-6:].upper()}) has been escalated due to exceeding the resolution time threshold."
-                send_notification(user, 'Complaint Escalated', notification_message)
+                from utils.notifications import send_email
+                try:
+                    send_email(
+                        recipient_email=user['email'],
+                        subject="Your complaint has been escalated",
+                        body=f"Your complaint (ID: {str(complaint_id)[-6:].upper()}) has been escalated due to exceeding the resolution time threshold."
+                    )
+                except Exception as e:
+                    print(f"Failed to send escalation notification: {e}")
+            
+            # Format complaint data for return
+            escalated_complaint = {
+                'complaintId': str(complaint_id),
+                'subject': complaint.get('subject', 'No subject'),
+                'priority': priority,
+                'createdAt': created_at.isoformat() if created_at else None,
+                'escalatedAt': datetime.utcnow().isoformat()
+            }
             
             # Add to the list of escalated complaints
-            escalated_complaints.append({
-                'complaintId': str(complaint_id),
-                'subject': complaint.get('subject'),
-                'priority': priority,
-                'hours_exceeded': round(hours_diff, 2),
-                'threshold_hours': threshold_hours
-            })
+            escalated_complaints.append(escalated_complaint)
     
     # Log the results
     if escalated_complaints:

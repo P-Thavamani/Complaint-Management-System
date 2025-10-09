@@ -75,7 +75,7 @@ const FeedbackManagement = () => {
 							<div className="flex justify-between items-start mb-2">
 								<div className="flex items-center space-x-2">
 									<span className={`px-2 py-1 text-xs font-semibold rounded-full ${getTypeBadgeClass(item.type)}`}>
-										{item.type.charAt(0).toUpperCase() + item.type.slice(1)}
+										{item.type ? item.type.charAt(0).toUpperCase() + item.type.slice(1) : 'General'}
 									</span>
 									{item.rating && (
 										<div className="flex items-center">
@@ -88,9 +88,9 @@ const FeedbackManagement = () => {
 									)}
 							</div>
 							<span className="text-sm text-gray-500">{formatDate(item.createdAt)}</span>
-						</div>
-						<p className="text-sm text-gray-700 mb-2">{item.message}</p>
-						<div className="text-xs text-gray-500">From: {item.user_name} ({item.user_email})</div>
+							</div>
+							<p className="text-sm text-gray-700 mb-2">{item.comment || 'No comment provided'}</p>
+							<div className="text-xs text-gray-500">From: {item.user_name || 'Unknown'} {item.user_email ? `(${item.user_email})` : ''}</div>
 						</div>
 					))}
 				</div>
@@ -152,8 +152,9 @@ const AdminDashboard = () => {
 	const handleEscalationCheck = async () => {
 		setEscalationLoading(true);
 		try {
-			const response = await axios.post('/api/complaint-updates/check-escalations');
-			toast.success(response.data.message);
+			// Use the correct endpoint from the backend
+			const response = await axios.get('/api/complaint_updates/check-escalations');
+			toast.success(response.data.message || 'Escalation check completed');
 			const complaintsResponse = await axios.get('/api/admin/complaints');
 			setComplaints(complaintsResponse.data);
 			const statsResponse = await axios.get('/api/admin/stats');
@@ -166,7 +167,6 @@ const AdminDashboard = () => {
 			}
 		} catch (error) {
 			console.error('Error during escalation check:', error);
-			toast.error(error.response?.data?.message || 'Failed to run escalation check');
 		} finally {
 			setEscalationLoading(false);
 		}
