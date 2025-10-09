@@ -34,7 +34,7 @@ def check_and_escalate_complaints():
     # Get database from Flask app context
     from flask import current_app
     db = current_app.config.get('db')
-    if not db:
+    if db is None:
         print("Database not available in app context")
         return []
     

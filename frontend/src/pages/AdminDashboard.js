@@ -167,6 +167,16 @@ const AdminDashboard = () => {
 			}
 		} catch (error) {
 			console.error('Error during escalation check:', error);
+			if (error.response) {
+				// Server responded with error status
+				toast.error(`Server error: ${error.response.data?.message || error.response.statusText}`);
+			} else if (error.request) {
+				// Request was made but no response received
+				toast.error('No response from server. Please check if the backend is running.');
+			} else {
+				// Something else happened
+				toast.error(`Request error: ${error.message}`);
+			}
 		} finally {
 			setEscalationLoading(false);
 		}

@@ -18,10 +18,14 @@ def submit_feedback(current_user):
         data = request.get_json()
         db = current_app.config['db']
         
+        # Get user details from database to ensure we have the correct name
+        user = db.users.find_one({'_id': ObjectId(current_user['id'])})
+        user_name = user.get('name', 'Unknown') if user else 'Unknown'
+        
         # Create feedback document
         feedback = {
             'user_id': current_user['id'],
-            'user_name': current_user.get('name', 'Unknown'),
+            'user_name': user_name,
             'user_email': current_user.get('email', ''),
             'rating': data.get('rating', 5),
             'comment': data.get('message', ''),  # Use message from form data
@@ -41,17 +45,17 @@ def submit_feedback(current_user):
         result = db.feedback.insert_one(feedback)
         
         # Award points to the user for submitting feedback
-        points_awarded = 5  # Default points for feedback
-        if feedback['rating'] >= 4:
-            points_awarded = 10  # More points for positive feedback
+        action_type = 'detailed_feedback' if feedback['rating'] >= 4 else 'feedback'
         
-        # Update user's reward points
-        award_points(current_user['id'], points_awarded, 'Submitted feedback', db=db)
+        # Use the correct award_points function signature
+        reward_result = award_points(current_user['id'], action_type)
+        points_awarded = reward_result.get('points', 0) if reward_result.get('awarded', False) else 0
         
         return jsonify({
             'feedback_id': str(result.inserted_id),
             'message': 'Feedback submitted successfully',
-            'awarded_points': points_awarded
+            'awarded_points': points_awarded,
+            'success': True
         }), 201
         
     except Exception as e:
@@ -75,15 +79,19 @@ def submit_complaint_feedback(current_user, complaint_id):
             return jsonify({'error': 'Invalid complaint ID'}), 400
             
         # Get complaint directly from database
-        complaint = db.complaints.find_one({'_id': complaint_obj_id, 'user_id': current_user['id']})
+        complaint = db.complaints.find_one({'_id': complaint_obj_id, 'user_id': ObjectId(current_user['id'])})
         if not complaint:
             return jsonify({'error': 'Complaint not found or access denied'}), 404
+        
+        # Get user details from database to ensure we have the correct name
+        user = db.users.find_one({'_id': ObjectId(current_user['id'])})
+        user_name = user.get('name', 'Unknown') if user else 'Unknown'
             
         # Create feedback document
         feedback = {
             'complaint_id': complaint_obj_id,
             'user_id': current_user['id'],
-            'user_name': current_user.get('name', 'Unknown'),
+            'user_name': user_name,
             'user_email': current_user.get('email', ''),
             'rating': data.get('rating', 5),
             'comment': data.get('comment', ''),

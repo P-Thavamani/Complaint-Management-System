@@ -34,6 +34,7 @@ def token_required(f):
             # Create current_user object
             current_user = {
                 'id': str(user['_id']),
+                'name': user.get('name', 'Unknown'),
                 'email': user['email'],
                 'is_admin': user.get('is_admin', False),
                 'is_worker': user.get('is_worker', False)
@@ -83,6 +84,7 @@ def admin_required(f):
             # Create current_user object
             current_user = {
                 'id': str(user['_id']),
+                'name': user.get('name', 'Unknown'),
                 'email': user['email'],
                 'is_admin': True
             }

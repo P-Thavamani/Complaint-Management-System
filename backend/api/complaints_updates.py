@@ -10,8 +10,12 @@ complaint_updates_bp = Blueprint('complaint_updates', __name__)
 
 
 
+@complaint_updates_bp.route('/test', methods=['GET'])
+def test_endpoint():
+    """Simple test endpoint to verify the blueprint is working"""
+    return jsonify({'message': 'Complaint updates blueprint is working', 'status': 'ok'})
+
 @complaint_updates_bp.route('/check-escalations', methods=['GET', 'POST'])
-@token_required
 @admin_required
 def trigger_escalation_check(current_user):
     """

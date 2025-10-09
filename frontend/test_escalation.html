@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Escalation Endpoint</title>
+</head>
+<body>
+    <h1>Test Escalation Endpoint</h1>
+    <button onclick="testEscalation()">Test Escalation Check</button>
+    <div id="result"></div>
+
+    <script>
+        async function testEscalation() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                // Get token from localStorage (if available)
+                const token = localStorage.getItem('token');
+                console.log('Token available:', !!token);
+                
+                if (!token) {
+                    resultDiv.innerHTML = 'No token found in localStorage. Please login first.';
+                    return;
+                }
+                
+                // Test the endpoint
+                const response = await fetch('http://localhost:5000/api/complaint_updates/check-escalations', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', [...response.headers.entries()]);
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `<h3>Success!</h3><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    resultDiv.innerHTML = `<h3>Error ${response.status}</h3><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `<h3>Network Error</h3><p>${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

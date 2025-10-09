@@ -340,7 +340,6 @@ def get_complaint_detail(current_user, complaint_id):
     return jsonify(formatted_complaint)
 
 @complaints_bp.route('/<complaint_id>', methods=['GET', 'DELETE'])
-@token_required
 @admin_required
 def delete_complaint(current_user, complaint_id):
     """
