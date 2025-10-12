@@ -117,7 +117,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Start Flask server
-python app.py
+python run.py
 ```
 
 ### Environment Variables
