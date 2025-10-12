@@ -31,13 +31,16 @@ ENV/
 # Environment Files - CRITICAL: Never commit these!
 .env
 .env.*
-!.env.example
 backend/.env
 backend/.env.*
 frontend/.env
 frontend/.env.*
 **/.env
 **/.env.*
+
+# Allow .env.example files (safe templates)
+!.env.example
+!**/.env.example
 
 # Flask Specific
 instance/
