@@ -27,8 +27,17 @@ var/
 env/
 venv/
 ENV/
+
+# Environment Files - CRITICAL: Never commit these!
 .env
+.env.*
+!.env.example
 backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
+**/.env
+**/.env.*
 
 # Flask Specific
 instance/
