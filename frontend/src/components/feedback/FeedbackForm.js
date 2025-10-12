@@ -12,7 +12,7 @@ const FeedbackForm = ({ onClose, onFeedbackSubmitted }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.message.trim()) {
       toast.error('Please enter your feedback message');
       return;
@@ -21,21 +21,21 @@ const FeedbackForm = ({ onClose, onFeedbackSubmitted }) => {
     try {
       setSubmitting(true);
       const response = await axios.post('/api/feedback', formData);
-      
+
       toast.success(`Feedback submitted successfully! You earned ${response.data.awarded_points} points!`);
-      
+
       // Reset form
       setFormData({
         message: '',
         type: 'general',
         rating: null
       });
-      
+
       // Call callback if provided
       if (onFeedbackSubmitted) {
         onFeedbackSubmitted(response.data);
       }
-      
+
       // Close modal if onClose is provided
       if (onClose) {
         onClose();
@@ -97,11 +97,10 @@ const FeedbackForm = ({ onClose, onFeedbackSubmitted }) => {
                   key={rating}
                   type="button"
                   onClick={() => handleRatingClick(rating)}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                    formData.rating === rating
-                      ? 'bg-yellow-500 text-white'
-                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                  }`}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${formData.rating === rating
+                    ? 'bg-yellow-500 text-white'
+                    : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                    }`}
                 >
                   {rating}
                 </button>

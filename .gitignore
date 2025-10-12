@@ -28,6 +28,7 @@ env/
 venv/
 ENV/
 .env
+backend/.env
 
 # Flask Specific
 instance/
@@ -48,6 +49,28 @@ uploads/
 # Temporary Files
 tmp/
 temp/
+
+# Test Files
+**/test_*.py
+**/*test*.py
+**/tests/
+**/*_test.py
+test_*.html
+*_test.html
+**/*_FIX_SUMMARY.md
+**/*_SUMMARY.md
+
+# Setup and Development Files
+setup.py
+**/setup.py
+
+# Development Scripts
+**/test_*.js
+**/test_*.jsx
+**/*.test.js
+**/*.test.jsx
+**/*.spec.js
+**/*.spec.jsx
 
 # ====================================
 # React Frontend
@@ -78,3 +101,18 @@ yarn-error.log*
 .vscode/
 *.swp
 *.swo
+.mypy_cache/
+*.pyc
+
+# Package Lock Files (optional - uncomment if you want to ignore)
+# package-lock.json
+# yarn.lock
+
+# Editor Files
+*.sublime-*
+.history/
+
+# System Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini

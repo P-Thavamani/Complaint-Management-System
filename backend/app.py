@@ -19,6 +19,7 @@ from api.users import users_bp
 from api.categories import categories_bp
 from api.complaints_updates import complaint_updates_bp
 from api.rewards import rewards_bp
+from api.reward_levels import reward_levels_bp
 from api.feedback import feedback_bp
 
 # Initialize mail and WhatsApp services
@@ -122,6 +123,7 @@ app.register_blueprint(users_bp, url_prefix='/api/users')
 app.register_blueprint(categories_bp, url_prefix='/api/categories')
 app.register_blueprint(complaint_updates_bp, url_prefix='/api/complaint_updates')
 app.register_blueprint(rewards_bp, url_prefix='/api/rewards')
+app.register_blueprint(reward_levels_bp, url_prefix='/api/reward-levels')
 app.register_blueprint(feedback_bp, url_prefix='/api/feedback')
 app.register_blueprint(worker_bp, url_prefix='/api/worker')
 

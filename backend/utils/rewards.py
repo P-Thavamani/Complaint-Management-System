@@ -93,6 +93,10 @@ def award_points(user_id, action_type, complaint_id=None):
         # Insert reward entry
         db.rewards.insert_one(reward_entry)
         
+        # Get current level before updating points
+        old_level_info = get_user_level(user_id)
+        old_level = old_level_info.get('current_level', {}).get('level', 'Rookie Support Agent')
+        
         # Update user's total points
         current_points = user.get('reward_points', 0)
         new_total = current_points + points
@@ -102,13 +106,19 @@ def award_points(user_id, action_type, complaint_id=None):
             {'$set': {'reward_points': new_total}}
         )
         
-        # Get user level information
-        level_info = get_user_level(user_id)
-        current_level = level_info.get('current_level', {}).get('level', 'Bronze')
+        # Get new level information after updating points
+        new_level_info = get_user_level(user_id)
+        new_level = new_level_info.get('current_level', {}).get('level', 'Rookie Support Agent')
         
-        # Send email notification about earned points
+        # Check if user leveled up
+        leveled_up = old_level != new_level
+        
+        # Send appropriate email notification
         if user.get('email'):
-            send_reward_notification(user.get('email'), points, new_total, action_type, current_level, complaint_id)
+            if leveled_up:
+                send_level_up_notification(user.get('email'), user.get('name', 'User'), old_level, new_level, new_total, new_level_info.get('current_level', {}))
+            else:
+                send_reward_notification(user.get('email'), points, new_total, action_type, new_level, complaint_id)
         
         return {
             'awarded': True,
@@ -116,7 +126,10 @@ def award_points(user_id, action_type, complaint_id=None):
             'total_points': new_total,
             'action_type': action_type,
             'message': f"Earned {points} points for {action_type.replace('_', ' ')}",
-            'level': current_level
+            'level': new_level,
+            'leveled_up': leveled_up,
+            'old_level': old_level if leveled_up else None,
+            'new_level': new_level if leveled_up else None
         }
         
     except Exception as e:
@@ -177,43 +190,200 @@ def get_user_rewards(user_id):
 
 def get_reward_levels():
     """
-    Get the reward levels and their benefits
+    Get the reward levels from database
     
     Returns:
         list: Reward levels information
     """
-    return [
-        {
-            'level': 'Rookie Support Agent',
-            'min_points': 0,
-            'max_points': 99,
-            'benefits': ['Basic support access']
-        },
-        {
-            'level': 'Support Specialist',
-            'min_points': 100,
-            'max_points': 299,
-            'benefits': ['Priority support', 'Monthly training']
-        },
-        {
-            'level': 'Senior Support Specialist',
-            'min_points': 300,
-            'max_points': 599,
-            'benefits': ['Priority support', 'Monthly training', 'Exclusive webinars']
-        },
-        {
-            'level': 'Support Expert',
-            'min_points': 600,
-            'max_points': 999,
-            'benefits': ['VIP support', 'Monthly training', 'Exclusive webinars', 'Early feature access']
-        },
-        {
-            'level': 'Support Master',
-            'min_points': 1000,
-            'max_points': float('inf'),
-            'benefits': ['VIP support', 'Monthly training', 'Exclusive webinars', 'Early feature access', 'Recognition program']
-        }
-    ]
+    try:
+        from flask import current_app
+        db = current_app.config['db']
+        
+        # Get levels from database
+        levels = list(db.reward_levels.find().sort('min_points', 1))
+        
+        # If no levels in database, return default ones
+        if not levels:
+            return [
+                {
+                    'level': 'Rookie Support Agent',
+                    'min_points': 0,
+                    'max_points': 99,
+                    'benefits': ['Basic support access']
+                },
+                {
+                    'level': 'Support Specialist',
+                    'min_points': 100,
+                    'max_points': 299,
+                    'benefits': ['Priority support', 'Monthly training']
+                },
+                {
+                    'level': 'Senior Support Specialist',
+                    'min_points': 300,
+                    'max_points': 599,
+                    'benefits': ['Priority support', 'Monthly training', 'Exclusive webinars']
+                },
+                {
+                    'level': 'Support Expert',
+                    'min_points': 600,
+                    'max_points': 999,
+                    'benefits': ['VIP support', 'Monthly training', 'Exclusive webinars', 'Early feature access']
+                },
+                {
+                    'level': 'Support Master',
+                    'min_points': 1000,
+                    'max_points': float('inf'),
+                    'benefits': ['VIP support', 'Monthly training', 'Exclusive webinars', 'Early feature access', 'Recognition program']
+                }
+            ]
+        
+        # Format levels for return
+        formatted_levels = []
+        for level in levels:
+            formatted_levels.append({
+                'level': level['level'],
+                'min_points': level['min_points'],
+                'max_points': level['max_points'],
+                'benefits': level['benefits'],
+                'requirements': level.get('requirements', []),
+                'badge_color': level.get('badge_color', '#95a5a6')
+            })
+        
+        return formatted_levels
+        
+    except Exception as e:
+        print(f"Error getting reward levels from database: {str(e)}")
+        # Return default levels as fallback
+        return [
+            {
+                'level': 'Rookie Support Agent',
+                'min_points': 0,
+                'max_points': 99,
+                'benefits': ['Basic support access']
+            },
+            {
+                'level': 'Support Specialist',
+                'min_points': 100,
+                'max_points': 299,
+                'benefits': ['Priority support', 'Monthly training']
+            },
+            {
+                'level': 'Senior Support Specialist',
+                'min_points': 300,
+                'max_points': 599,
+                'benefits': ['Priority support', 'Monthly training', 'Exclusive webinars']
+            },
+            {
+                'level': 'Support Expert',
+                'min_points': 600,
+                'max_points': 999,
+                'benefits': ['VIP support', 'Monthly training', 'Exclusive webinars', 'Early feature access']
+            },
+            {
+                'level': 'Support Master',
+                'min_points': 1000,
+                'max_points': float('inf'),
+                'benefits': ['VIP support', 'Monthly training', 'Exclusive webinars', 'Early feature access', 'Recognition program']
+            }
+        ]
+
+def send_level_up_notification(user_email, user_name, old_level, new_level, total_points, level_info):
+    """
+    Send an email notification when user levels up
+    
+    Args:
+        user_email (str): The user's email address
+        user_name (str): The user's name
+        old_level (str): Previous level name
+        new_level (str): New level name
+        total_points (int): User's total points
+        level_info (dict): Information about the new level
+    
+    Returns:
+        bool: Whether the email was sent successfully
+    """
+    try:
+        from utils.notifications import send_email
+        
+        # Get level benefits
+        benefits = level_info.get('benefits', [])
+        benefits_text = '\n'.join([f"• {benefit}" for benefit in benefits])
+        
+        # Email subject
+        subject = f"🎉 Congratulations! You've reached {new_level}! 🎉"
+        
+        # Plain text body
+        body = f"""
+Congratulations {user_name}!
+
+🎉 LEVEL UP! 🎉
+
+You have successfully advanced from {old_level} to {new_level}!
+
+Your Stats:
+• Total Points: {total_points}
+• New Level: {new_level}
+
+Your New Benefits:
+{benefits_text}
+
+Keep up the excellent work! Your dedication and contributions are making a real difference.
+
+Best regards,
+The Complaint Management Team
+        """
+        
+        # HTML email content
+        html = f"""
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+            <div style="background: rgba(255,255,255,0.1); padding: 40px; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 32px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">🎉 LEVEL UP! 🎉</h1>
+                <p style="color: #ffffff; font-size: 18px; margin: 10px 0 0 0; opacity: 0.9;">Congratulations {user_name}!</p>
+            </div>
+            
+            <div style="background: #ffffff; padding: 40px;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div style="background: linear-gradient(135deg, #ff6b6b, #feca57); color: white; padding: 15px 30px; border-radius: 50px; display: inline-block; font-size: 20px; font-weight: bold; margin-bottom: 20px;">
+                        {old_level} → {new_level}
+                    </div>
+                </div>
+                
+                <div style="background: #f8f9fa; border-radius: 10px; padding: 25px; margin-bottom: 25px;">
+                    <h2 style="color: #2c3e50; margin-top: 0; font-size: 22px;">📊 Your Achievement Stats</h2>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                        <span style="color: #7f8c8d; font-weight: 500;">Total Points:</span>
+                        <span style="color: #2c3e50; font-weight: bold; font-size: 18px;">{total_points}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: #7f8c8d; font-weight: 500;">New Level:</span>
+                        <span style="color: #27ae60; font-weight: bold; font-size: 18px;">{new_level}</span>
+                    </div>
+                </div>
+                
+                <div style="background: #e8f5e8; border-left: 4px solid #27ae60; padding: 20px; border-radius: 5px;">
+                    <h3 style="color: #27ae60; margin-top: 0; font-size: 18px;">🎁 Your New Benefits:</h3>
+                    <ul style="color: #2c3e50; margin: 0; padding-left: 20px;">
+                        {"".join([f"<li style='margin-bottom: 8px;'>{benefit}</li>" for benefit in benefits])}
+                    </ul>
+                </div>
+                
+                <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #ecf0f1;">
+                    <p style="color: #7f8c8d; margin: 0; font-style: italic;">Keep up the excellent work! Your dedication is making a real difference.</p>
+                </div>
+            </div>
+            
+            <div style="background: #2c3e50; padding: 20px; text-align: center;">
+                <p style="color: #bdc3c7; margin: 0; font-size: 14px;">Complaint Management System - Rewards Team</p>
+            </div>
+        </div>
+        """
+        
+        # Send email
+        return send_email(user_email, subject, body, html)
+        
+    except Exception as e:
+        print(f"Error sending level-up notification: {str(e)}")
+        return False
 
 def send_reward_notification(user_email, points, total_points, action_type, current_level, complaint_id=None):
     """

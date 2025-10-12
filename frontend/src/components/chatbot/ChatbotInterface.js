@@ -22,7 +22,7 @@ const ChatbotInterface = () => {
       try {
         const response = await axios.get('/api/complaint_updates/updates');
         const updates = response.data;
-        
+
         if (updates && updates.length > 0) {
           // Add new notifications
           setNotifications(prev => {
@@ -31,12 +31,12 @@ const ChatbotInterface = () => {
             const newUpdates = updates.filter(update => !existingIds.includes(update.complaintId));
             return [...newUpdates, ...prev].slice(0, 10); // Keep only the 10 most recent notifications
           });
-          
+
           // Increment unread count if chatbot is closed
           if (!isOpen) {
             setUnreadMessages(prev => prev + updates.length);
           }
-          
+
           // Show toast for each update
           updates.forEach(update => {
             toast.info(`Complaint #${update.ticketNumber}: ${update.message}`, {
@@ -53,7 +53,7 @@ const ChatbotInterface = () => {
     // Check immediately and then every 30 seconds
     checkForUpdates();
     const interval = setInterval(checkForUpdates, 30000);
-    
+
     return () => clearInterval(interval);
   }, [isOpen]);
 
@@ -102,7 +102,7 @@ const ChatbotInterface = () => {
         aria-label="Open AI Assistant"
       >
         {isOpen ? <FaCommentDots size={24} /> : <FaRobot size={24} />}
-        
+
         {/* Unread messages badge */}
         {unreadMessages > 0 && !isOpen && (
           <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
@@ -129,7 +129,7 @@ const ChatbotInterface = () => {
             <div className="bg-indigo-600 text-white p-3 flex justify-between items-center">
               <div className="flex items-center">
                 <FaRobot className="mr-2" />
-                <h3 className="font-medium">AI Assistant</h3>
+                <h3 className="font-medium">Griev AI</h3>
               </div>
               <div className="flex items-center space-x-2">
                 <button
@@ -137,10 +137,10 @@ const ChatbotInterface = () => {
                   className="text-white hover:text-gray-200 focus:outline-none"
                   aria-label={isMinimized ? "Expand" : "Minimize"}
                 >
-                  {isMinimized ? 
+                  {isMinimized ?
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clipRule="evenodd" />
-                    </svg> : 
+                    </svg> :
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
                     </svg>
@@ -166,7 +166,7 @@ const ChatbotInterface = () => {
             {/* Minimized View */}
             {isMinimized && (
               <div className="p-3 text-center">
-                <p className="text-sm text-gray-600">AI Assistant is minimized. Click to expand.</p>
+                <p className="text-sm text-gray-600">Griev AI is minimized. Click to expand.</p>
                 {notifications.length > 0 && (
                   <div className="mt-2 text-xs text-indigo-600">
                     {notifications.length} new notification{notifications.length !== 1 ? 's' : ''}
