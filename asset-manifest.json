@@ -1,0 +1,11 @@
+{
+  "files": {
+    "main.css": "https://P-Thavamani.github.io/Complaint-Management-System/static/css/main.4b33ed81.css",
+    "main.js": "https://P-Thavamani.github.io/Complaint-Management-System/static/js/main.836e9014.js",
+    "index.html": "https://P-Thavamani.github.io/Complaint-Management-System/index.html"
+  },
+  "entrypoints": [
+    "static/css/main.4b33ed81.css",
+    "static/js/main.836e9014.js"
+  ]
+}
