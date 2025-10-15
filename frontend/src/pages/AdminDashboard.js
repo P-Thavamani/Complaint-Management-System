@@ -118,7 +118,7 @@ const AdminDashboard = () => {
 	const [complaints, setComplaints] = useState([]);
 	const [stats, setStats] = useState({ total: 0, pending: 0, inProgress: 0, resolved: 0, escalated: 0, userCount: 0, avgResolutionTime: 0 });
 	const [categoryStats, setCategoryStats] = useState({});
-	const [timelineStats, setTimelineStats] = useState([]);
+	// const [timelineStats, setTimelineStats] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [escalationLoading, setEscalationLoading] = useState(false);
 	// const [showEscalationModal, setShowEscalationModal] = useState(false);
@@ -137,7 +137,7 @@ const AdminDashboard = () => {
 				const statsResponse = await axios.get('/api/admin/stats');
 				setStats({ ...statsResponse.data.statusCounts, userCount: statsResponse.data.userCount, avgResolutionTime: statsResponse.data.avgResolutionTime });
 				setCategoryStats(statsResponse.data.categoryCounts);
-				setTimelineStats(statsResponse.data.timeline);
+				// setTimelineStats(statsResponse.data.timeline);
 			} catch (error) {
 				console.error('Error fetching admin data:', error);
 				toast.error('Failed to load admin dashboard data');
@@ -160,11 +160,11 @@ const AdminDashboard = () => {
 			const statsResponse = await axios.get('/api/admin/stats');
 			setStats({ ...statsResponse.data.statusCounts, userCount: statsResponse.data.userCount, avgResolutionTime: statsResponse.data.avgResolutionTime });
 			setCategoryStats(statsResponse.data.categoryCounts);
-			setTimelineStats(statsResponse.data.timeline);
-			if (response.data.escalated_complaints && response.data.escalated_complaints.length > 0) {
-				setEscalatedComplaints(response.data.escalated_complaints);
-				setShowEscalationModal(true);
-			}
+			// setTimelineStats(statsResponse.data.timeline);
+			// if (response.data.escalated_complaints && response.data.escalated_complaints.length > 0) {
+			// 	setEscalatedComplaints(response.data.escalated_complaints);
+			// 	setShowEscalationModal(true);
+			// }
 		} catch (error) {
 			console.error('Error during escalation check:', error);
 			if (error.response) {

@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from '../services/axios';
 import { toast } from 'react-toastify';
-import { AuthContext } from '../context/AuthContext';
+// import { AuthContext } from '../context/AuthContext';
 import RewardsDisplay from '../components/rewards/RewardsDisplay';
 import RewardsLeaderboard from '../components/rewards/RewardsLeaderboard';
 import ComplaintList from '../components/complaints/ComplaintList';

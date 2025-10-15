@@ -55,7 +55,7 @@ const VoiceInput = ({ onTranscript, onCancel }) => {
       recorder.onstop = () => {
         const blob = new Blob(chunks, { type: 'audio/webm' });
         setAudioBlob(blob);
-        setAudioChunks(chunks);
+        // setAudioChunks(chunks);
       };
       
       recorder.start();

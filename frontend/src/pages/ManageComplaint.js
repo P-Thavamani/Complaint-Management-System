@@ -148,7 +148,7 @@ const ManageComplaint = () => {
   //     default:
   //       return 'bg-gray-100 text-gray-800';
   //   }
-  };
+  // };
 
   if (loading) {
     return (
