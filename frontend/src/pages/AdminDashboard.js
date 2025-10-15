@@ -86,8 +86,8 @@ const FeedbackManagement = () => {
 											))}
 										</div>
 									)}
-							</div>
-							<span className="text-sm text-gray-500">{formatDate(item.createdAt)}</span>
+								</div>
+								<span className="text-sm text-gray-500">{formatDate(item.createdAt)}</span>
 							</div>
 							<p className="text-sm text-gray-700 mb-2">{item.comment || 'No comment provided'}</p>
 							<div className="text-xs text-gray-500">From: {item.user_name || 'Unknown'} {item.user_email ? `(${item.user_email})` : ''}</div>
