@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ['python39']
+nixPkgs = ['python39', 'pip']
 
 [phases.install]
 cmds = ['pip install -r requirements.txt']
@@ -8,4 +8,4 @@ cmds = ['pip install -r requirements.txt']
 cmds = ['echo "Build completed"']
 
 [start]
-cmd = 'gunicorn app:app --bind 0.0.0.0:$PORT'
+cmd = 'gunicorn app:app --host 0.0.0.0 --port $PORT'
