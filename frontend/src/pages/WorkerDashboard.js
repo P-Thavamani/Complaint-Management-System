@@ -12,7 +12,7 @@ const WorkerDashboard = () => {
     const [complaints, setComplaints] = useState([]);
     const [stats, setStats] = useState({});
     const [loading, setLoading] = useState(true);
-    const { user } = useContext(AuthContext);
+    // const { user } = useContext(AuthContext);
 
     useEffect(() => {
         fetchComplaints();

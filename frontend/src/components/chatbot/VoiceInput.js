@@ -7,7 +7,7 @@ const VoiceInput = ({ onTranscript, onCancel }) => {
   const [audioBlob, setAudioBlob] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
-  const [audioChunks, setAudioChunks] = useState([]);
+  // const [audioChunks, setAudioChunks] = useState([]);
 
   // Start recording when component mounts
   useEffect(() => {

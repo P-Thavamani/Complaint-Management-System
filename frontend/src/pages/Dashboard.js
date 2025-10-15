@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import axios from '../services/axios';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../context/AuthContext';
@@ -14,7 +14,7 @@ import ComplaintList from '../components/complaints/ComplaintList';
 import ComplaintStats from '../components/complaints/ComplaintStats';
 
 const Dashboard = () => {
-	const { user } = useContext(AuthContext);
+	// const { user } = useContext(AuthContext);
 	const [complaints, setComplaints] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [stats, setStats] = useState({

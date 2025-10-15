@@ -121,8 +121,8 @@ const AdminDashboard = () => {
 	const [timelineStats, setTimelineStats] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [escalationLoading, setEscalationLoading] = useState(false);
-	const [showEscalationModal, setShowEscalationModal] = useState(false);
-	const [escalatedComplaints, setEscalatedComplaints] = useState([]);
+	// const [showEscalationModal, setShowEscalationModal] = useState(false);
+	// const [escalatedComplaints, setEscalatedComplaints] = useState([]);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [filterStatus, setFilterStatus] = useState('all');
 	const [filterPriority, setFilterPriority] = useState('all');
@@ -182,7 +182,7 @@ const AdminDashboard = () => {
 		}
 	};
 
-	const closeEscalationModal = () => setShowEscalationModal(false);
+	// const closeEscalationModal = () => setShowEscalationModal(false);
 
 	// Filter/sort
 	const filteredComplaints = complaints
@@ -229,14 +229,14 @@ const AdminDashboard = () => {
 		]
 	};
 
-	const timelineChartData = {
-		labels: timelineStats.map(item => item.date),
-		datasets: [
-			{ label: 'New Complaints', data: timelineStats.map(item => item.count), backgroundColor: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)', borderWidth: 1 }
-		]
-	};
+	// const timelineChartData = {
+	// 	labels: timelineStats.map(item => item.date),
+	// 	datasets: [
+	// 		{ label: 'New Complaints', data: timelineStats.map(item => item.count), backgroundColor: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)', borderWidth: 1 }
+	// 	]
+	// };
 
-	const timelineOptions = { responsive: true, plugins: { legend: { position: 'top' }, title: { display: true, text: 'Complaints Over Time' } } };
+	// const timelineOptions = { responsive: true, plugins: { legend: { position: 'top' }, title: { display: true, text: 'Complaints Over Time' } } };
 
 	if (loading) {
 		return (
