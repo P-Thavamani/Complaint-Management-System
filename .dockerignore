@@ -1,0 +1,29 @@
+# Frontend files (not needed for backend)
+frontend/node_modules
+frontend/build
+frontend/.env*
+
+# Git files
+.git
+.gitignore
+
+# Documentation
+*.md
+deploy-*.ps1
+update-*.ps1
+
+# Cache files
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.mypy_cache
+
+# IDE files
+.vscode
+.idea
+
+# OS files
+.DS_Store
+Thumbs.db

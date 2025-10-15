@@ -1,11 +1,16 @@
 [phases.setup]
-nixPkgs = ['python39']
+nixPkgs = ['python3', 'python3Packages.pip', 'python3Packages.virtualenv']
 
 [phases.install]
-cmds = ['cd backend && pip install -r requirements.txt']
+cmds = [
+  'python3 -m venv venv',
+  'source venv/bin/activate',
+  'pip install --upgrade pip',
+  'pip install -r backend/requirements.txt'
+]
 
 [phases.build]
-cmds = ['echo "Build completed"']
+cmds = ['echo "Build phase completed"']
 
 [start]
-cmd = 'cd backend && gunicorn app:app --bind 0.0.0.0:$PORT'
+cmd = 'source venv/bin/activate && cd backend && python app.py'
