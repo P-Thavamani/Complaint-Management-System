@@ -168,6 +168,15 @@ def server_error(error):
         'message': 'An unexpected error occurred.'
     }), 500
 
+# Health check endpoint for Railway
+@app.route('/')
+def health_check():
+    return jsonify({
+        'status': 'healthy',
+        'message': 'Complaint Management System API is running',
+        'version': '1.0.0'
+    })
+
 # Initialize the scheduler
 init_scheduler(app)
 
