@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ['python3', 'python3Packages.pip']
+nixPkgs = ['python39', 'python39Packages.pip']
 
 [phases.install]
 cmds = [
@@ -7,8 +7,5 @@ cmds = [
   'pip install -r backend/requirements.txt'
 ]
 
-[phases.build]
-cmds = ['echo "Build phase completed"']
-
 [start]
-cmd = 'python backend/run.py'
+cmd = 'cd backend && python run.py'
