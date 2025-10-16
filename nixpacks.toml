@@ -1,10 +1,8 @@
 [phases.setup]
-nixPkgs = ['python3', 'python3Packages.pip', 'python3Packages.virtualenv']
+nixPkgs = ['python3', 'python3Packages.pip']
 
 [phases.install]
 cmds = [
-  'python3 -m venv venv',
-  'source venv/bin/activate',
   'pip install --upgrade pip',
   'pip install -r backend/requirements.txt'
 ]
@@ -13,4 +11,4 @@ cmds = [
 cmds = ['echo "Build phase completed"']
 
 [start]
-cmd = 'source venv/bin/activate && cd backend && python app.py'
+cmd = 'python main.py'

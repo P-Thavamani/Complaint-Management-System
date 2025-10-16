@@ -21,17 +21,20 @@ COPY main.py ./
 # Set working directory to backend
 WORKDIR /app/backend
 
+# Make start script executable
+RUN chmod +x start.sh
+
 # Create non-root user for security
 RUN adduser -D -s /bin/sh appuser
 USER appuser
 
-# Expose port
-EXPOSE 5000
+# Expose port (Railway will set PORT env var)
+EXPOSE $PORT
 
 # Set environment variables
 ENV FLASK_APP=app.py
 ENV FLASK_ENV=production
 ENV PYTHONPATH=/app
 
-# Run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "1", "--timeout", "120", "app:app"]
+# Run the application using startup script
+CMD ["./start.sh"]
