@@ -131,8 +131,10 @@ app.register_blueprint(worker_bp, url_prefix='/api/worker')
 @app.route('/')
 def index():
     return jsonify({
-        'message': 'Welcome to the Complaint Management System API',
-        'status': 'online'
+        'message': 'Complaint Management System API',
+        'status': 'healthy',
+        'version': '1.0.0',
+        'database': 'connected' if 'db' in app.config and hasattr(app.config['db'], 'name') else 'mock'
     })
 
 # Health check endpoint
@@ -168,14 +170,7 @@ def server_error(error):
         'message': 'An unexpected error occurred.'
     }), 500
 
-# Health check endpoint for Railway
-@app.route('/')
-def health_check():
-    return jsonify({
-        'status': 'healthy',
-        'message': 'Complaint Management System API is running',
-        'version': '1.0.0'
-    })
+# Health check endpoint for Railway (removed duplicate route)
 
 # Initialize the scheduler
 init_scheduler(app)
