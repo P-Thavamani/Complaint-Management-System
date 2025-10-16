@@ -4,12 +4,17 @@ from datetime import datetime
 import os
 import base64
 import tempfile
-import speech_recognition as sr
-from pydub import AudioSegment
-import numpy as np
-# Temporarily commenting out YOLO import to avoid CUDA errors
-# from ultralytics import YOLO
-import cv2
+# Optional ML dependencies - only import if available
+try:
+    import speech_recognition as sr
+    import numpy as np
+    from pydub import AudioSegment
+    # from ultralytics import YOLO  # Commented out for lighter deployment
+    # import cv2  # Commented out for lighter deployment
+    ML_FEATURES_AVAILABLE = True
+except ImportError:
+    ML_FEATURES_AVAILABLE = False
+    print("ML features not available - some functionality will be limited")
 from utils.auth_middleware import token_required
 import uuid
 import google.generativeai as genai

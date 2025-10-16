@@ -1,0 +1,15 @@
+# Minimal production requirements for Railway deployment
+flask==2.3.3
+flask-cors==4.0.0
+python-dotenv==1.0.0
+pymongo==4.5.0
+passlib==1.7.4
+pyjwt==2.8.0
+gunicorn==21.2.0
+requests==2.31.0
+google-generativeai==0.3.0
+flask-mail==0.9.1
+apscheduler==3.10.4
+
+# Optional: Add these only if you need WhatsApp features
+# twilio==8.9.1

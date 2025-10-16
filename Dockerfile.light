@@ -1,0 +1,33 @@
+# Ultra-lightweight Python image
+FROM python:3.9-alpine
+
+# Install minimal system dependencies
+RUN apk add --no-cache --virtual .build-deps gcc musl-dev libffi-dev && \
+    apk add --no-cache curl
+
+# Set working directory
+WORKDIR /app
+
+# Copy and install requirements
+COPY backend/requirements-production.txt ./
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements-production.txt && \
+    apk del .build-deps
+
+# Copy application code
+COPY backend/ ./backend/
+COPY main.py ./
+
+# Create non-root user
+RUN adduser -D appuser
+USER appuser
+
+# Expose port
+EXPOSE 5000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:5000/ || exit 1
+
+# Run application
+CMD ["python", "-m", "gunicorn", "--bind", "0.0.0.0:5000", "--workers", "1", "backend.app:app"]

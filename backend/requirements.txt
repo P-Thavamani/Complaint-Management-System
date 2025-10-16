@@ -1,22 +1,29 @@
-flask
-flask-cors
-python-dotenv
-pymongo
-passlib
-pyjwt
-gunicorn
-python-multipart
-requests
-numpy
-ultralytics
-SpeechRecognition
-pydub
-sentencepiece
-protobuf
-google-generativeai
+# Core Flask dependencies
+flask==2.3.3
+flask-cors==4.0.0
+python-dotenv==1.0.0
+pymongo==4.5.0
+passlib==1.7.4
+pyjwt==2.8.0
+gunicorn==21.2.0
+
+# API and communication
+requests==2.31.0
+google-generativeai==0.3.0
+
 # Email support
-flask-mail
-# WhatsApp integration
-twilio
+flask-mail==0.9.1
+
+# WhatsApp integration (optional)
+twilio==8.9.1
+
 # Scheduling support
-apscheduler
+apscheduler==3.10.4
+
+# Optional ML dependencies (commented out for lighter deployment)
+# numpy==1.24.3
+# ultralytics==8.0.196
+# SpeechRecognition==3.10.0
+# pydub==0.25.1
+# sentencepiece==0.1.99
+# protobuf==4.24.4

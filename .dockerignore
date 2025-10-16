@@ -1,29 +1,44 @@
 # Frontend files (not needed for backend)
-frontend/node_modules
-frontend/build
-frontend/.env*
+frontend/
+node_modules/
+*.log
 
-# Git files
-.git
+# Git and documentation
+.git/
 .gitignore
-
-# Documentation
 *.md
+README*
+LICENSE*
+
+# Scripts and configs not needed in container
 deploy-*.ps1
 update-*.ps1
+*.toml
+nixpacks.toml
+railway.json
 
-# Cache files
-__pycache__
+# Python cache
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
-.mypy_cache
+.mypy_cache/
+.pytest_cache/
 
-# IDE files
-.vscode
-.idea
-
-# OS files
+# IDE and OS files
+.vscode/
+.idea/
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
+
+# Environment files (will be set via Railway)
+.env*
+backend/.env*
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
