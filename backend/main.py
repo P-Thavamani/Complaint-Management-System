@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Railway deployment entry point for Complaint Management System Backend
+Railway deployment entry point - uses run.py like local development
 """
 
 import os
@@ -10,18 +10,19 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 try:
-    # Import and run the Flask app
-    from app import app
+    print("Starting Complaint Management System using run.py")
+    print(f"Current working directory: {os.getcwd()}")
     
-    if __name__ == '__main__':
-        port = int(os.environ.get('PORT', 5000))
-        print(f"Starting Complaint Management System on port {port}")
-        print(f"Current working directory: {os.getcwd()}")
-        app.run(host='0.0.0.0', port=port, debug=False)
+    # Execute run.py (same as local development)
+    if os.path.exists('run.py'):
+        exec(open('run.py').read())
+    else:
+        print("Error: run.py not found")
+        print(f"Files in current directory: {os.listdir('.')}")
+        sys.exit(1)
         
-except ImportError as e:
-    print(f"Error importing app: {e}")
+except Exception as e:
+    print(f"Error starting application: {e}")
     print(f"Current working directory: {os.getcwd()}")
     print(f"Python path: {sys.path}")
-    print(f"Files in current directory: {os.listdir('.')}")
     sys.exit(1)
