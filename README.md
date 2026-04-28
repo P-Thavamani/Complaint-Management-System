@@ -1,160 +1,257 @@
-# GrievAI - Grievance Management System with Chatbot Integration & Ticket Support Generation
+<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
+<a id="readme-top"></a>
 
-A comprehensive grievance management solution with AI-powered chatbot integration, smart ticketing, and multi-modal complaint submission capabilities.
+<!-- PROJECT SHIELDS -->
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
 
-## Features
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/your_username/grievai">
+    <img src="https://img.icons8.com/?size=100&id=114322&format=png&color=000000" alt="Logo" width="80" height="80">
+  </a>
+
+  <h3 align="center">GrievAI</h3>
+
+  <p align="center">
+    Intelligent Grievance Management System with Multi-Modal AI Capabilities
+    <br />
+    <a href="https://github.com/your_username/grievai"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/your_username/grievai">View Demo</a>
+    ·
+    <a href="https://github.com/your_username/grievai/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    ·
+    <a href="https://github.com/your_username/grievai/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+  </p>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+        <li><a href="#core-features">Core Features</a></li>
+        <li><a href="#ai--multi-modal-capabilities">AI & Multi-Modal Capabilities</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
+
+<!-- ABOUT THE PROJECT -->
+## About The Project
+
+[![GrievAI Hero Banner][product-screenshot]](https://github.com/your_username/grievai)
+
+GrievAI is a comprehensive, modern grievance management solution that leverages cutting-edge Artificial Intelligence to streamline complaint submission, smart ticketing, categorization, and automated resolution workflows. Built on a decoupled architecture, it separates the client interface from the backend API services to ensure scalability and maintainability.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Built With
+
+This project relies on robust, modern technologies to deliver a fast and reliable experience.
+
+* [![React][React.js]][React-url]
+* [![Flask][Flask.org]][Flask-url]
+* [![MongoDB][MongoDB.com]][MongoDB-url]
+* [![TailwindCSS][TailwindCSS.com]][TailwindCSS-url]
+* [![Gemini API][Gemini.com]][Gemini-url]
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Core Features
+* **Role-Based Access Control**: Secure JWT authentication for Users, Workers, and Administrators.
+* **Smart Ticketing System**: Automated ticket generation with auto-priority assignment.
+* **Interactive Dashboard**: Real-time tracking and statistical overview using Chart.js.
+* **Escalation Workflow**: Built-in mechanisms to escalate unresolved or high-priority complaints.
 
-- **User Authentication**: Secure login/registration system with JWT authentication
-- **AI-Powered Chatbot**: Intelligent chatbot for complaint submission and assistance
-- **Smart Ticketing System**: Automated ticket generation with priority assignment
-- **Multi-Modal Grievance Logging**: Submit grievances via text, voice, or image
-- **Real-Time Tracking**: Monitor complaint status and updates in real-time
-- **Admin Dashboard**: Comprehensive analytics and complaint management
-- **Escalation Workflow**: Structured process for escalating unresolved complaints
+### AI & Multi-Modal Capabilities
+* **AI-Powered Chatbot**: A 24/7 intelligent assistant powered by Google's Gemini API to guide users through the complaint process.
+* **Multi-Modal Logging**: Submit grievances naturally via Text, Voice (Speech-to-Text), or Image.
+* **Intelligent Categorization**: Uses AI to understand the context of the complaint and auto-assign it to the correct department.
+* **Computer Vision (YOLOv8)**: Detects objects and validates issues directly from user-uploaded images (Optional/Extensible module).
 
-### Unique Enhancements
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-- **Voice-to-Text Conversion**: Using Google Speech-to-Text for voice complaint processing
-- **Image Analysis with YOLOv8**: Detect objects and issues in uploaded images
-- **Intelligent Categorization**: Auto-categorize complaints based on content analysis
-- **Priority Assignment**: Smart prioritization based on complaint severity
-- **Interactive Timeline**: Visual representation of complaint progress
+<!-- GETTING STARTED -->
+## Getting Started
 
-## Tech Stack
-
-### Frontend
-- React.js with Hooks and Context API
-- TailwindCSS for responsive UI
-- Chart.js for data visualization
-- React Router for navigation
-
-### Backend
-- Flask RESTful API
-- MongoDB for database
-- JWT for authentication
-- Google Speech-to-Text API
-- YOLOv8 for image analysis
-- Google Gemini API for enhanced chatbot capabilities
-
-## Project Structure
-
-```
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── auth/
-│   │   │   ├── chatbot/
-│   │   │   ├── complaints/
-│   │   │   └── layout/
-│   │   ├── context/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   └── utils/
-│   ├── package.json
-│   └── tailwind.config.js
-└── backend/
-    ├── api/
-    │   ├── auth.py
-    │   ├── complaints.py
-    │   ├── chatbot.py
-    │   ├── admin.py
-    │   └── users.py
-    ├── models/
-    ├── services/
-    ├── utils/
-    ├── app.py
-    └── requirements.txt
-```
-
-## Development Setup
-
-For development, follow these steps:
-
-1. Clone the repository
-2. Install dependencies for both frontend and backend
-3. Set up MongoDB Atlas (cloud database)
-4. Configure environment variables
-5. Run the application
-
-Detailed instructions can be found in [CLOUD_SETUP.md](CLOUD_SETUP.md).
+Follow these instructions to get a copy of the project up and running on your local machine for development and testing purposes.
 
 ### Prerequisites
-- Node.js (v14+)
-- Python (v3.8+)
-- MongoDB Atlas account
 
-### Frontend Setup
+Ensure you have the following installed on your system:
+* Node.js (v14.0+) and npm
+  ```sh
+  npm install npm@latest -g
+  ```
+* Python (v3.8+)
+* MongoDB (Local instance or MongoDB Atlas cloud account)
+* Google Gemini API Key
 
-```bash
-# Navigate to frontend directory
-cd frontend
+### Installation
 
-# Install dependencies
-npm install
+1. Get a free Gemini API Key at [Google AI Studio](https://aistudio.google.com/)
+2. Clone the repo
+   ```sh
+   git clone https://github.com/your_username/grievai.git
+   ```
+3. Set up the backend
+   ```sh
+   cd backend
+   python -m venv venv
+   # On Windows
+   venv\Scripts\activate
+   # On macOS/Linux
+   # source venv/bin/activate
+   pip install -r requirements.txt
+   ```
+4. Configure backend environment variables. Create a `.env` file in the `backend` directory:
+   ```env
+   MONGO_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/grievai?retryWrites=true&w=majority
+   SECRET_KEY=your_super_secret_jwt_key
+   FLASK_ENV=development
+   GEMINI_API_KEY=ENTER_YOUR_API_KEY
+   ```
+5. Start the backend server
+   ```sh
+   python run.py
+   ```
+6. Open a new terminal, set up the frontend
+   ```sh
+   cd frontend
+   npm install
+   ```
+7. Start the frontend development server
+   ```sh
+   npm start
+   ```
 
-# Start development server
-npm start
-```
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### Backend Setup
-
-```bash
-# Navigate to backend directory
-cd backend
-
-# Create virtual environment
-python -m venv venv
-
-# Activate virtual environment
-# On Windows
-venv\Scripts\activate
-# On macOS/Linux
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Start Flask server
-python run.py
-```
-
-### Environment Variables
-
-Create a `.env` file in the backend directory with the following variables:
-
-```
-MONGO_URI=mongodb+srv://your_username:your_password@your_cluster.mongodb.net/complaint_system?retryWrites=true&w=majority
-SECRET_KEY=your_secret_key_here
-FLASK_ENV=development
-GEMINI_API_KEY=your_gemini_api_key_here
-```
-
-- For MongoDB Atlas, create an account at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register), set up a cluster, create a database user, and get your connection string.
-- To get a Gemini API key, visit [Google AI Studio](https://makersuite.google.com/app/apikey) and create a new API key.
-
+<!-- USAGE EXAMPLES -->
 ## Usage
 
-### User Workflow
+### 👤 User Workflow
+1. **Onboarding**: Register and log in securely.
+2. **Dashboard**: View a personalized dashboard showing the status of past complaints.
+3. **Submission**: Log a new grievance using the interactive form or simply chat with the AI bot. Upload images or use voice notes for clarity.
+4. **Tracking**: Receive a unique tracking ID and watch the status move from `Pending` → `In Progress` → `Resolved`.
 
-1. Register/Login to the system
-2. Navigate to the dashboard to view existing complaints
-3. Submit a new grievance via:
-   - Text input
-   - Voice recording
-   - Image upload
-4. Track complaint status and updates
-5. Receive notifications on status changes
+### 🛡️ Admin & Worker Workflow
+1. **Overview**: Admins access a high-level analytics dashboard displaying complaint volumes, category distributions, and resolution times.
+2. **Triage**: AI automatically tags incoming complaints. Admins can verify and route them to specific workers.
+3. **Resolution**: Workers update the status of the complaints, add internal notes, and communicate the resolution back to the user.
+4. **Escalation**: View and prioritize complaints that have breached their SLA.
 
-### Admin Workflow
+_For more examples, please refer to the [Documentation](https://github.com/your_username/grievai/wiki)_
 
-1. Login with admin credentials
-2. View all complaints in the admin dashboard
-3. Analyze complaint statistics and trends
-4. Assign, update, or resolve complaints
-5. Manage escalation workflow
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+<!-- ROADMAP -->
+## Roadmap
+
+- [x] Initial full-stack implementation
+- [x] JWT Authentication and RBAC
+- [x] Google Gemini AI Chatbot integration
+- [ ] Add Multi-language Support
+    - [ ] Spanish
+    - [ ] Hindi
+- [ ] Implement Push Notifications (WebSockets/Firebase)
+- [ ] Expand YOLOv8 integration for automated evidence verification
+
+See the [open issues](https://github.com/your_username/grievai/issues) for a full list of proposed features (and known issues).
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- CONTRIBUTING -->
+## Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- LICENSE -->
 ## License
 
-MIT
+Distributed under the MIT License. See `LICENSE.txt` for more information.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- CONTACT -->
+## Contact
+
+P Thavamani - [@your_twitter](https://twitter.com/your_username) - your.email@example.com
+
+Project Link: [https://github.com/your_username/grievai](https://github.com/your_username/grievai)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- ACKNOWLEDGMENTS -->
+## Acknowledgments
+
+* [React.js](https://reactjs.org/)
+* [Flask](https://flask.palletsprojects.com/)
+* [Google Gemini API](https://aistudio.google.com/)
+* [TailwindCSS](https://tailwindcss.com/)
+* [Chart.js](https://www.chartjs.org/)
+* [Img Shields](https://shields.io)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-shield]: https://img.shields.io/github/contributors/your_username/grievai.svg?style=for-the-badge
+[contributors-url]: https://github.com/your_username/grievai/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/your_username/grievai.svg?style=for-the-badge
+[forks-url]: https://github.com/your_username/grievai/network/members
+[stars-shield]: https://img.shields.io/github/stars/your_username/grievai.svg?style=for-the-badge
+[stars-url]: https://github.com/your_username/grievai/stargazers
+[issues-shield]: https://img.shields.io/github/issues/your_username/grievai.svg?style=for-the-badge
+[issues-url]: https://github.com/your_username/grievai/issues
+[license-shield]: https://img.shields.io/github/license/your_username/grievai.svg?style=for-the-badge
+[license-url]: https://github.com/your_username/grievai/blob/main/LICENSE.txt
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://linkedin.com/in/pthavamani
+[product-screenshot]: ./assets/hero_banner.png
+[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
+[React-url]: https://reactjs.org/
+[Flask.org]: https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white
+[Flask-url]: https://flask.palletsprojects.com/
+[MongoDB.com]: https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white
+[MongoDB-url]: https://www.mongodb.com/
+[TailwindCSS.com]: https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white
+[TailwindCSS-url]: https://tailwindcss.com/
+[Gemini.com]: https://img.shields.io/badge/Google_Gemini-8E75B2?style=for-the-badge&logo=google&logoColor=white
+[Gemini-url]: https://aistudio.google.com/
