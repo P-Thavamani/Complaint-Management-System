@@ -57,7 +57,18 @@ const ChatbotInterface = () => {
     return () => clearInterval(interval);
   }, [isOpen]);
 
+  // Listen for external open-chatbot events (e.g. from Dashboard button)
+  useEffect(() => {
+    const handleOpenChatbot = () => {
+      setIsOpen(true);
+      setIsMinimized(false);
+    };
+    window.addEventListener('open-chatbot', handleOpenChatbot);
+    return () => window.removeEventListener('open-chatbot', handleOpenChatbot);
+  }, []);
+
   // Reset unread count when opening chatbot
+
   useEffect(() => {
     if (isOpen) {
       setUnreadMessages(0);
@@ -156,12 +167,10 @@ const ChatbotInterface = () => {
               </div>
             </div>
 
-            {/* Chatbot Content */}
-            {!isMinimized && (
-              <div className="h-full">
-                <Chatbot onClose={closeChatbot} notifications={notifications} />
-              </div>
-            )}
+            {/* Chatbot Content — always mounted, hidden when minimized to preserve state */}
+            <div style={{ display: isMinimized ? 'none' : 'flex', flexDirection: 'column', height: 'calc(500px - 48px)' }}>
+              <Chatbot onClose={closeChatbot} notifications={notifications} />
+            </div>
 
             {/* Minimized View */}
             {isMinimized && (

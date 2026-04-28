@@ -9,24 +9,18 @@ const Login = () => {
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const { login, user } = useContext(AuthContext);
-  const navigate = useNavigate();
-  
-  // Redirect if already logged in
-  useEffect(() => {
-    if (user) {
-      navigate('/dashboard');
-    }
-  }, [user, navigate]);
-  
+
+  const { login } = useContext(AuthContext);
+
+  // Note: Redirect logic is handled by AuthContext.login() and App.js useEffect
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value
     });
-    
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors({
@@ -35,50 +29,50 @@ const Login = () => {
       });
     }
   };
-  
+
   const validate = () => {
     const newErrors = {};
-    
+
     // Email validation
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
     }
-    
+
     // Password validation
     if (!formData.password) {
       newErrors.password = 'Password is required';
     }
-    
+
     return newErrors;
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate form
     const newErrors = validate();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     // Call login function from context
     const success = await login(formData.email, formData.password);
-    
+
     if (!success) {
       setIsSubmitting(false);
     }
   };
-  
+
   return (
     <div className="max-w-md mx-auto">
       <div className="card">
         <h2 className="text-2xl font-bold text-center mb-6">Login to Your Account</h2>
-        
+
         <form onSubmit={handleSubmit}>
           {/* Email Field */}
           <div className="mb-4">
@@ -94,7 +88,7 @@ const Login = () => {
             />
             {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
           </div>
-          
+
           {/* Password Field */}
           <div className="mb-6">
             <label htmlFor="password" className="block text-gray-700 font-medium mb-2">Password</label>
@@ -109,7 +103,7 @@ const Login = () => {
             />
             {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
           </div>
-          
+
           {/* Submit Button */}
           <button
             type="submit"
@@ -127,7 +121,7 @@ const Login = () => {
             ) : 'Login'}
           </button>
         </form>
-        
+
         <div className="mt-4 text-center">
           <p className="text-gray-600">
             Don't have an account?{' '}

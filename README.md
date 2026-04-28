@@ -1,6 +1,6 @@
-# Complaint Management System with Chatbot Integration & Ticket Support Generation
+# GrievAI - Grievance Management System with Chatbot Integration & Ticket Support Generation
 
-A comprehensive complaint management solution with AI-powered chatbot integration, smart ticketing, and multi-modal complaint submission capabilities.
+A comprehensive grievance management solution with AI-powered chatbot integration, smart ticketing, and multi-modal complaint submission capabilities.
 
 ## Features
 
@@ -9,7 +9,7 @@ A comprehensive complaint management solution with AI-powered chatbot integratio
 - **User Authentication**: Secure login/registration system with JWT authentication
 - **AI-Powered Chatbot**: Intelligent chatbot for complaint submission and assistance
 - **Smart Ticketing System**: Automated ticket generation with priority assignment
-- **Multi-Modal Complaint Logging**: Submit complaints via text, voice, or image
+- **Multi-Modal Grievance Logging**: Submit grievances via text, voice, or image
 - **Real-Time Tracking**: Monitor complaint status and updates in real-time
 - **Admin Dashboard**: Comprehensive analytics and complaint management
 - **Escalation Workflow**: Structured process for escalating unresolved complaints
@@ -140,7 +140,7 @@ GEMINI_API_KEY=your_gemini_api_key_here
 
 1. Register/Login to the system
 2. Navigate to the dashboard to view existing complaints
-3. Submit a new complaint via:
+3. Submit a new grievance via:
    - Text input
    - Voice recording
    - Image upload

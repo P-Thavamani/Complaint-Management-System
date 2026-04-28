@@ -1,20 +1,16 @@
 import React, { useState, useEffect } from 'react';
-// import { Link } from 'react-router-dom';
 import axios from '../services/axios';
 import { toast } from 'react-toastify';
-// import { AuthContext } from '../context/AuthContext';
 import RewardsDisplay from '../components/rewards/RewardsDisplay';
 import RewardHistory from '../components/rewards/RewardHistory';
 import RewardsLeaderboard from '../components/rewards/RewardsLeaderboard';
 import FeedbackForm from '../components/feedback/FeedbackForm';
 
-// Components
-import Chatbot from '../components/chatbot/Chatbot';
+// Components (no inline Chatbot — global ChatbotInterface used instead)
 import ComplaintList from '../components/complaints/ComplaintList';
 import ComplaintStats from '../components/complaints/ComplaintStats';
 
 const Dashboard = () => {
-	// const { user } = useContext(AuthContext);
 	const [complaints, setComplaints] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [stats, setStats] = useState({
@@ -23,8 +19,12 @@ const Dashboard = () => {
 		inProgress: 0,
 		resolved: 0
 	});
-	const [chatbotOpen, setChatbotOpen] = useState(false);
 	const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
+
+	// Open the global ChatbotInterface
+	const openGlobalChatbot = () => {
+		window.dispatchEvent(new CustomEvent('open-chatbot'));
+	};
 
 	// Fetch user complaints
 	useEffect(() => {
@@ -51,13 +51,8 @@ const Dashboard = () => {
 		fetchComplaints();
 	}, []);
 
-	const toggleChatbot = () => {
-		setChatbotOpen(!chatbotOpen);
-	};
+	const handleFeedbackSubmitted = () => {};
 
-	const handleFeedbackSubmitted = () => {
-		// No-op; RewardsDisplay will refresh itself
-	};
 
 	return (
 		<div>
@@ -70,11 +65,11 @@ const Dashboard = () => {
 						</svg>
 						Feedback
 					</button>
-					<button onClick={toggleChatbot} className="btn-primary flex items-center">
+					<button onClick={openGlobalChatbot} className="btn-primary flex items-center">
 						<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
 							<path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
 						</svg>
-						{chatbotOpen ? 'Close Chatbot' : 'Open Chatbot'}
+						Open Chatbot
 					</button>
 				</div>
 			</div>
@@ -101,12 +96,12 @@ const Dashboard = () => {
 					<ComplaintList complaints={complaints} />
 				) : (
 					<div className="card text-center py-8">
-						<p className="text-gray-500 mb-4">You haven't submitted any complaints yet.</p>
-						<button onClick={toggleChatbot} className="btn-primary inline-flex items-center">
+						<p className="text-gray-500 mb-4">You haven't submitted any grievances yet.</p>
+						<button onClick={openGlobalChatbot} className="btn-primary inline-flex items-center">
 							<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
 								<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
 							</svg>
-							Submit a Complaint
+							Submit a Grievance
 						</button>
 					</div>
 				)}
@@ -128,28 +123,8 @@ const Dashboard = () => {
 					<FeedbackForm onClose={() => setFeedbackModalOpen(false)} onFeedbackSubmitted={handleFeedbackSubmitted} />
 				</div>
 			)}
-
-			{/* Chatbot */}
-			{chatbotOpen && (
-				<div className="fixed bottom-4 right-4 z-50">
-					<Chatbot onClose={toggleChatbot} />
-				</div>
-			)}
-
-			{/* Floating Chatbot Button (when closed) */}
-			{!chatbotOpen && (
-				<button
-					onClick={toggleChatbot}
-					className="fixed bottom-4 right-4 bg-primary-600 text-white rounded-full p-4 shadow-lg hover:bg-primary-700 transition-colors duration-200 z-50"
-					aria-label="Open Chatbot"
-				>
-					<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-					</svg>
-				</button>
-			)}
 		</div>
 	);
 };
 
-export default Dashboard;
+export default Dashboard;

@@ -116,8 +116,31 @@ def login():
     db = current_app.config['db']
     user = db.users.find_one({'email': data['email']})
     
-    # Check if user exists and password is correct
-    if not user or not pbkdf2_sha256.verify(data['password'], user['password']):
+    if not user:
+        return jsonify({'error': 'Invalid email or password'}), 401
+    
+    # Verify password - support both pbkdf2_sha256 (app) and bcrypt (add_worker.py)
+    password_valid = False
+    stored_password = user.get('password', '')
+    
+    try:
+        # Try pbkdf2_sha256 first (the main app's hashing method)
+        password_valid = pbkdf2_sha256.verify(data['password'], stored_password)
+    except Exception:
+        pass
+    
+    if not password_valid:
+        # Try bcrypt (used by add_worker.py script)
+        try:
+            import bcrypt
+            password_valid = bcrypt.checkpw(
+                data['password'].encode('utf-8'),
+                stored_password.encode('utf-8') if isinstance(stored_password, str) else stored_password
+            )
+        except Exception:
+            pass
+    
+    if not password_valid:
         return jsonify({'error': 'Invalid email or password'}), 401
     
     # Check if this is a worker login
@@ -143,15 +166,18 @@ def login():
             'is_admin': is_admin,
             'is_worker': is_worker,
             'role': user.get('role', 'user'),
+            'skills': user.get('skills', []),
             'phone': user.get('phone', ''),
             'department': user.get('department', ''),
             'createdAt': user.get('createdAt')
         }
     })
 
+
 @auth_bp.route('/worker-login', methods=['POST'])
 def worker_login():
     data = request.get_json()
+
     
     # Validate required fields
     if not all(k in data for k in ('email', 'password')):

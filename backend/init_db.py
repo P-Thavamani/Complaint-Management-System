@@ -42,7 +42,7 @@ def init_db():
             'email': 'thavamani.thavamani123@gmail.com',
             'password': pbkdf2_sha256.hash('admin123'),  # Change this in production
             'is_admin': True,
-            'phone': '6281107467',
+            'phone': '+91 6281107467',
             'department': 'Administration',
             'createdAt': datetime.utcnow(),
             'lastLogin': None,

@@ -29,9 +29,11 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import AdminRoute from './components/auth/AdminRoute';
 import WorkerRoute from './components/auth/WorkerRoute';
 import { AuthContext } from './context/AuthContext';
+import { RewardsProvider } from './context/RewardsContext';
 
 function App() {
-	const { user, loading, isAdmin } = useContext(AuthContext);
+	const { user, loading, isAdmin, isWorker } = useContext(AuthContext);
+
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -54,35 +56,57 @@ function App() {
 			}
 
 			if (user) {
-				// Prevent access to the /admin route if not an admin
-				if (location.pathname.startsWith('/admin') && !isAdmin()) {
+				const adminUser = isAdmin();
+				const workerUser = isWorker ? isWorker() : (user.is_worker || user.worker);
+
+				// Prevent non-admins from admin routes
+				if (location.pathname.startsWith('/admin') && !adminUser) {
+					navigate(workerUser ? '/worker' : '/dashboard');
+					return;
+				}
+
+				// Prevent non-workers (and non-admins) from worker routes
+				if (location.pathname.startsWith('/worker') && !workerUser && !adminUser) {
 					navigate('/dashboard');
 					return;
 				}
 
-				// Only redirect from home/login/register to appropriate dashboard
-				// Don't redirect from other pages like /profile, /complaint/:id, etc.
+				// Redirect admins away from user/worker-only areas to their dashboard
+				if (adminUser && (location.pathname === '/dashboard')) {
+					navigate('/admin');
+					return;
+				}
+
+				// Redirect workers away from user dashboard to worker dashboard
+				if (workerUser && !adminUser && location.pathname === '/dashboard') {
+					navigate('/worker');
+					return;
+				}
+
+				// Redirect from home/login/register to appropriate dashboard
 				if (location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register') {
-					let destination = '/dashboard';
-					if (isAdmin()) {
-						destination = '/admin';
-					} else if (user.is_worker) {
-						destination = '/worker';
+					if (adminUser) {
+						navigate('/admin');
+					} else if (workerUser) {
+						navigate('/worker');
+					} else {
+						navigate('/dashboard');
 					}
-					navigate(destination);
 					return;
 				}
 			}
 		};
 
 		checkAuth();
-	}, [user, loading, isAdmin, navigate, location.pathname]);
+	}, [user, loading, isAdmin, isWorker, navigate, location.pathname]);
+
 
 	return (
-		<div className="flex flex-col min-h-screen bg-gray-50">
-			<ToastContainer position="top-right" autoClose={3000} />
-			<Navbar onReload={handleReload} />
-			<main className="flex-grow container mx-auto px-4 py-8">
+		<RewardsProvider>
+			<div className="flex flex-col min-h-screen bg-gray-50">
+				<ToastContainer position="top-right" autoClose={3000} />
+				<Navbar onReload={handleReload} />
+				<main className="flex-grow container mx-auto px-4 py-8">
 				<Routes>
 					<Route path="/" element={<Home />} />
 					<Route path="/login" element={<Login />} />
@@ -170,7 +194,8 @@ function App() {
 
 			{/* Chatbot Interface - available on all pages */}
 			<ChatbotInterface />
-		</div>
+			</div>
+		</RewardsProvider>
 	);
 }
 

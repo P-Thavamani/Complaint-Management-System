@@ -79,8 +79,8 @@ const ComplaintForm = () => {
       const id = response.data?.complaint?._id || response.data?._id || response.data?.id;
       navigate(`/complaint/${id}`);
     } catch (error) {
-      console.error('Error submitting complaint:', error);
-      toast.error('Failed to submit complaint. Please try again.');
+      console.error('Error submitting grievance:', error);
+      toast.error('Failed to submit grievance. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -89,7 +89,7 @@ const ComplaintForm = () => {
   return (
     <div className="max-w-2xl mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Submit a Complaint</h1>
+        <h1 className="text-2xl font-bold">Submit a Grievance</h1>
         <button
           onClick={() => setShowChatbot(!showChatbot)}
           className="btn-primary flex items-center"
@@ -190,7 +190,7 @@ const ComplaintForm = () => {
                   </svg>
                   Submitting...
                 </span>
-              ) : 'Submit Complaint'}
+              ) : 'Submit Grievance'}
             </button>
           </form>
         </div>

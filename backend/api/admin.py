@@ -45,14 +45,30 @@ def format_complaint(complaint):
 @admin_required
 def get_all_complaints(current_user):
     db = current_app.config['db']
-    
+
     # Get all complaints
     all_complaints = list(db.complaints.find().sort('createdAt', -1))
-    
-    # Format complaints for response
+
+    # Enrich with assignedTo worker name before formatting
+    for complaint in all_complaints:
+        if complaint.get('assigned_to'):
+            worker = db.users.find_one(
+                {'_id': complaint['assigned_to']},
+                {'name': 1, 'email': 1}
+            )
+            if worker:
+                complaint['assignedTo'] = {
+                    'name': worker.get('name', 'Unknown'),
+                    'email': worker.get('email', ''),
+                    'id': str(worker['_id'])
+                }
+
+    # Format complaints for response (converts ObjectIds to strings)
     formatted_complaints = [format_complaint(complaint) for complaint in all_complaints]
-    
+
     return jsonify(formatted_complaints)
+
+
 
 @admin_bp.route('/stats', methods=['GET'])
 @admin_required
@@ -301,17 +317,24 @@ def manage_complaint(current_user, complaint_id):
 @admin_required
 def get_workers(current_user):
     db = current_app.config['db']
-    workers = list(db.users.find({'role': 'worker'}))
+    # Query by role OR is_worker flag to catch all workers
+    workers = list(db.users.find({'$or': [{'role': 'worker'}, {'is_worker': True}]}, {'password': 0}))
     
     formatted_workers = [{
         'id': str(worker['_id']),
-        'name': worker['name'],
-        'email': worker['email'],
-        'active': worker.get('active', True),
-        'created_at': worker.get('created_at', datetime.utcnow()).isoformat()
+        '_id': str(worker['_id']),
+        'name': worker.get('name', 'Unknown'),
+        'email': worker.get('email', ''),
+        'skills': worker.get('skills', []),
+        'department': worker.get('department', ''),
+        'is_worker': True,
+        'role': 'worker',
+        'is_active': worker.get('is_active', worker.get('active', True)),
+        'createdAt': worker.get('createdAt', datetime.utcnow()).isoformat() if worker.get('createdAt') else None
     } for worker in workers]
     
     return jsonify(formatted_workers)
+
 
 @admin_bp.route('/workers', methods=['POST'])
 @admin_required

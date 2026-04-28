@@ -1,30 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import axios from '../../services/axios';
-import { toast } from 'react-toastify';
+import React from 'react';
+import { useRewards } from '../../context/RewardsContext';
 
 const RewardsLeaderboard = () => {
-  const [leaderboard, setLeaderboard] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchLeaderboard = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get('/api/rewards/leaderboard');
-        setLeaderboard(response.data);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching leaderboard:', err);
-        setError('Failed to load leaderboard. Please try again.');
-        toast.error('Failed to load leaderboard');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLeaderboard();
-  }, []);
+  const { leaderboard, loading, error } = useRewards();
 
   // Function to get badge color based on rank
   const getRankBadgeColor = (rank) => {
@@ -89,11 +67,11 @@ const RewardsLeaderboard = () => {
     <div className="card p-4">
       <h2 className="text-xl font-semibold mb-4">Rewards Leaderboard</h2>
       
-      {leaderboard.length === 0 ? (
+      {!leaderboard || leaderboard.length === 0 ? (
         <div className="text-center py-4 text-gray-500">No users on the leaderboard yet.</div>
       ) : (
         <div className="space-y-2">
-          {leaderboard.map((user) => (
+          {leaderboard && leaderboard.map((user) => (
             <div key={user.id} className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors duration-150">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${getRankBadgeColor(user.rank)} mr-3`}>
                 {user.rank}

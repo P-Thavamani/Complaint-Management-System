@@ -1,26 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import axios from '../../services/axios';
-import { toast } from 'react-toastify';
+import React from 'react';
+import { useRewards } from '../../context/RewardsContext';
 
 const RewardHistory = () => {
-  const [rewards, setRewards] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchRewardHistory = async () => {
-      try {
-        const response = await axios.get('/api/rewards/user');
-        setRewards(response.data.rewards || []);
-      } catch (error) {
-        console.error('Error fetching reward history:', error);
-        toast.error('Failed to load reward history');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRewardHistory();
-  }, []);
+  const { rewardData, loading } = useRewards();
+  const rewards = rewardData?.rewards || [];
 
   // Format date
   const formatDate = (dateString) => {

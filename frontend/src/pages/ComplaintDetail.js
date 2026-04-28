@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import axios from '../services/axios';
 import { toast } from 'react-toastify';
+import resolveImageUrl from '../utils/imageUrl';
 
 const ComplaintDetail = () => {
 	const { id } = useParams();
+	const location = useLocation();
+	// Detect if accessed from worker route
+	const isWorkerView = location.pathname.startsWith('/worker');
+	const backPath = isWorkerView ? '/worker' : '/dashboard';
+	const backLabel = isWorkerView ? 'Worker Dashboard' : 'Dashboard';
 	const [complaint, setComplaint] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [comment, setComment] = useState('');
@@ -75,7 +81,7 @@ const ComplaintDetail = () => {
 			<div className="text-center py-12">
 				<h2 className="text-2xl font-bold text-gray-700 mb-4">Complaint Not Found</h2>
 				<p className="text-gray-600 mb-6">The complaint you're looking for doesn't exist or you don't have permission to view it.</p>
-				<Link to="/dashboard" className="btn-primary">Back to Dashboard</Link>
+				<Link to={backPath} className="btn-primary">Back to {backLabel}</Link>
 			</div>
 		);
 	}
@@ -83,11 +89,11 @@ const ComplaintDetail = () => {
 	return (
 		<div>
 			<div className="mb-6">
-				<Link to="/dashboard" className="text-primary-600 hover:text-primary-700 flex items-center">
+				<Link to={backPath} className="text-primary-600 hover:text-primary-700 flex items-center">
 					<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
 						<path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
 					</svg>
-					Back to Dashboard
+					Back to {backLabel}
 				</Link>
 			</div>
 
@@ -117,7 +123,12 @@ const ComplaintDetail = () => {
 							{complaint.imageUrl && (
 								<div className="mt-4">
 									<h3 className="text-md font-semibold mb-2">Attached Image</h3>
-									<img src={complaint.imageUrl} alt="Complaint attachment" className="max-w-full h-auto rounded-lg border border-gray-200 max-h-64" />
+									<img
+										src={resolveImageUrl(complaint.imageUrl)}
+										alt="Complaint attachment"
+										className="max-w-full h-auto rounded-lg border border-gray-200 max-h-64"
+										onError={e => { e.target.onerror = null; e.target.style.display = 'none'; }}
+									/>
 								</div>
 							)}
 							{complaint.detectedObjects && complaint.detectedObjects.length > 0 && (

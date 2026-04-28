@@ -33,7 +33,7 @@ const Profile = () => {
             }
         };
         loadProfileData();
-    }, []); // No dependencies → runs once
+    }, [fetchUserProfile]); // Include fetchUserProfile dependency
 
     // Initialize form only once after user is loaded
     useEffect(() => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axios from '../services/axios';
@@ -14,11 +14,7 @@ const FeedbackPage = () => {
         resolved: true
     });
 
-    useEffect(() => {
-        fetchComplaintDetails();
-    }, []);
-
-    const fetchComplaintDetails = async () => {
+    const fetchComplaintDetails = useCallback(async () => {
         try {
             const response = await axios.get(`/api/complaints/${ticketId}`);
             setComplaint(response.data);
@@ -28,7 +24,11 @@ const FeedbackPage = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [ticketId]);
+
+    useEffect(() => {
+        fetchComplaintDetails();
+    }, [fetchComplaintDetails]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

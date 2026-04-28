@@ -97,7 +97,7 @@ Our support team will review your ticket and begin working on it as soon as poss
 
 You can track your ticket status by logging into your account.
 
-Thank you for using our Complaint Management System.
+Thank you for using GrievAI.
 
 Best regards,
 Support Team
@@ -122,7 +122,7 @@ Support Team
         
         <p>Our support team will review your ticket and begin working on it as soon as possible. You will receive updates as the status changes.</p>
         <p>You can track your ticket status by logging into your account.</p>
-        <p>Thank you for using our Complaint Management System.</p>
+        <p>Thank you for using GrievAI.</p>
         <p><strong>Best regards,<br>Support Team</strong></p>
     </div>
     """
@@ -212,7 +212,7 @@ Your feedback helps us improve our service quality and recognize outstanding per
 
 We hope this resolves your issue completely. If you have any further questions or if the issue persists, please don't hesitate to create a new ticket.
 
-Thank you for using our Complaint Management System. We appreciate your feedback and hope to serve you again soon.
+Thank you for using GrievAI. We appreciate your feedback and hope to serve you again soon.
 
 Best regards,
 Support Team
@@ -234,7 +234,7 @@ Support Team
         </div>
         
         <p>We hope this resolves your issue completely. If you have any further questions or if the issue persists, please don't hesitate to create a new ticket.</p>
-        <p>Thank you for using our Complaint Management System. We appreciate your feedback and hope to serve you again soon.</p>
+        <p>Thank you for using GrievAI. We appreciate your feedback and hope to serve you again soon.</p>
         <p><strong>Best regards,<br>Support Team</strong></p>
     </div>
     """
@@ -250,7 +250,7 @@ def send_feedback_request(user_email, user_name, complaint_id, feedback_url):
     email_body = f"""
 Dear {user_name},
 
-Thank you for using our Complaint Management System. We value your feedback and would love to hear about your experience.
+Thank you for using GrievAI. We value your feedback and would love to hear about your experience.
 
 Please take a moment to share your thoughts about our service by clicking the link below:
 {feedback_url}
@@ -270,7 +270,7 @@ Support Team
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #2563eb;">Your Feedback Matters</h2>
         <p>Dear {user_name},</p>
-        <p>Thank you for using our Complaint Management System. We value your feedback and would love to hear about your experience.</p>
+        <p>Thank you for using GrievAI. We value your feedback and would love to hear about your experience.</p>
         
         <div style="background-color: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
             <p style="margin-bottom: 20px;">Please take a moment to share your thoughts about our service:</p>
@@ -407,11 +407,11 @@ def send_thank_you_notifications(user_email, user_phone=None):
     }
     
     # Email content
-    email_subject = "Thank You for Using Our Complaint Management System"
+    email_subject = "Thank You for Using GrievAI"
     email_body = """
     Dear User,
     
-    Thank you for using our Complaint Management System. We're glad we could help resolve your issue.
+    Thank you for using GrievAI. We're glad we could help resolve your issue.
     
     We value your feedback and hope to serve you again soon.
     
@@ -423,7 +423,7 @@ def send_thank_you_notifications(user_email, user_phone=None):
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #059669;">Thank You!</h2>
         <p>Dear User,</p>
-        <p>Thank you for using our Complaint Management System. We're glad we could help resolve your issue.</p>
+        <p>Thank you for using GrievAI. We're glad we could help resolve your issue.</p>
         <p>We value your feedback and hope to serve you again soon.</p>
         <p><strong>Best regards,<br>Support Team</strong></p>
     </div>
@@ -434,7 +434,7 @@ def send_thank_you_notifications(user_email, user_phone=None):
     
     # WhatsApp content
     whatsapp_message = """
-    Thank you for using our Complaint Management System! 🎉
+    Thank you for using GrievAI! 🎉
     
     We're glad we could help resolve your issue. We value your feedback and hope to serve you again soon.
     

@@ -16,11 +16,11 @@ const Footer = () => {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mr-2" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
               </svg>
-              ComplaintAI
+              GrievAI
             </Link>
             <p className="mt-4 text-gray-300">
-              An AI-powered complaint management system with chatbot integration and ticket support generation.
-              Efficiently handle user complaints through text, voice, and image inputs.
+              An AI-powered grievance management system with chatbot integration and ticket support generation.
+              Efficiently handle user grievances through text, voice, and image inputs.
             </p>
           </div>
 
@@ -81,19 +81,19 @@ const Footer = () => {
                   <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                   <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                 </svg>
-                <span className="text-gray-300">support@complaintai.com</span>
+                <span className="text-gray-300">support@grievai.com</span>
               </li>
               <li className="flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
                 </svg>
-                <span className="text-gray-300">+1 (555) 123-4567</span>
+                <span className="text-gray-300">+91 6281107467</span>
               </li>
               <li className="flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                 </svg>
-                <span className="text-gray-300">123 AI Street, Tech City</span>
+                <span className="text-gray-300">Madurai, Tamil Nadu, India</span>
               </li>
             </ul>
           </div>
@@ -101,7 +101,18 @@ const Footer = () => {
 
         {/* Copyright */}
         <div className="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400">
-          <p>&copy; {currentYear} ComplaintAI. All rights reserved.</p>
+          <p>&copy; {currentYear} GrievAI. All rights reserved.</p>
+          <p className="mt-2">
+            Developed by{' '}
+            <a 
+              href="https://linkedin.com/in/PThavamani" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary-400 hover:text-primary-300 transition-colors duration-200"
+            >
+              P Thavamani, Theva Hari Prasath, Venkat Raman, Mohamed Rashed N
+            </a>
+          </p>
         </div>
       </div>
     </footer>

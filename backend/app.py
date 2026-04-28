@@ -131,11 +131,25 @@ app.register_blueprint(worker_bp, url_prefix='/api/worker')
 @app.route('/')
 def index():
     return jsonify({
-        'message': 'Complaint Management System API',
+        'message': 'GrievAI - Grievance Management System API',
         'status': 'healthy',
         'version': '1.0.0',
         'database': 'connected' if 'db' in app.config and hasattr(app.config['db'], 'name') else 'mock'
     })
+
+# Explicit static uploads route with CORS — allows React (localhost:3000)
+# to load images stored in backend/static/uploads/
+@app.route('/static/uploads/<path:filename>')
+def serve_upload(filename):
+    from flask import send_from_directory, make_response
+    uploads_dir = os.path.join(os.path.dirname(__file__), 'static', 'uploads')
+    response = make_response(send_from_directory(uploads_dir, filename))
+    response.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    response.headers['Cache-Control'] = 'public, max-age=86400'
+    return response
+
+
 
 # Health check endpoint
 @app.route('/api/health')
@@ -177,4 +191,12 @@ init_scheduler(app)
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=os.getenv('FLASK_ENV') == 'development')
+    is_dev = os.getenv('FLASK_ENV') == 'development'
+    app.run(
+        host='0.0.0.0',
+        port=port,
+        debug=is_dev,
+        # 'watchdog' causes "not a socket" crashes on Windows — use 'stat' instead
+        reloader_type='stat' if is_dev else None,
+        threaded=True
+    )

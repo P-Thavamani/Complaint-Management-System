@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from '../services/axios';
 import { toast } from 'react-toastify';
 import { useAI } from '../components/hooks/useAI';
+import resolveImageUrl from '../utils/imageUrl';
 
 const ManageComplaint = () => {
   const { id } = useParams();
@@ -10,7 +11,7 @@ const ManageComplaint = () => {
   const [complaint, setComplaint] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [users, setUsers] = useState([]);
+  const [workers, setWorkers] = useState([]);
   const [agents, setAgents] = useState([]);
   const [suggestingAgent, setSuggestingAgent] = useState(false);
   const { determineAssignment } = useAI();
@@ -33,17 +34,27 @@ const ManageComplaint = () => {
         setFormData({
           status: complaintResponse.data.status || '',
           priority: complaintResponse.data.priority || '',
-          assigned_to: complaintResponse.data.assignedTo?._id || '',
+          assigned_to: complaintResponse.data.assignedTo?._id || complaintResponse.data.assigned_to || '',
           resolution: complaintResponse.data.resolution || ''
         });
 
-        // Fetch users for assignment dropdown
-        const usersResponse = await axios.get('/api/admin/users');
-        setUsers(usersResponse.data);
+        // Fetch workers for assignment dropdown
+        try {
+          const workersResponse = await axios.get('/api/admin/users');
+          // Filter to only workers
+          const workerUsers = workersResponse.data.filter(u => u.is_worker || u.role === 'worker');
+          setWorkers(workerUsers.length > 0 ? workerUsers : workersResponse.data);
+        } catch (e) {
+          console.warn('Could not fetch workers:', e);
+        }
         
         // Fetch agents for AI-assisted assignment
-        const agentsResponse = await axios.get('/api/admin/agents');
-        setAgents(agentsResponse.data);
+        try {
+          const agentsResponse = await axios.get('/api/admin/agents');
+          setAgents(agentsResponse.data);
+        } catch (e) {
+          console.warn('Could not fetch agents:', e);
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
         toast.error('Failed to load complaint data. Please try again.');
@@ -74,7 +85,7 @@ const ManageComplaint = () => {
       
       if (agent) {
         // Find the corresponding user in our users list (matching by email)
-        const matchedUser = users.find(user => user.email === agent.email);
+        const matchedUser = workers.find(user => user.email === agent.email);
         
         if (matchedUser) {
           // Update the form data with the suggested agent
@@ -202,11 +213,20 @@ const ManageComplaint = () => {
             {complaint.imageUrl && (
               <div className="mt-4 mb-6">
                 <h3 className="text-md font-semibold mb-2">Attached Image</h3>
-                <img 
-                  src={complaint.imageUrl} 
-                  alt="Complaint attachment" 
+                <img
+                  src={resolveImageUrl(complaint.imageUrl)}
+                  alt="Complaint attachment"
                   className="max-w-full h-auto rounded-lg border border-gray-200 max-h-64"
+                  onError={e => {
+                    e.target.onerror = null;
+                    e.target.style.display = 'none';
+                    const msg = e.target.parentNode.querySelector('.img-error');
+                    if (msg) msg.style.display = 'block';
+                  }}
                 />
+                <p className="img-error text-sm text-red-500 mt-1" style={{display: 'none'}}>
+                  Image could not be loaded.
+                </p>
               </div>
             )}
 
@@ -337,7 +357,7 @@ const ManageComplaint = () => {
                     )}
                   </button>
                 </div>
-                <select
+                 <select
                   id="assigned_to"
                   name="assigned_to"
                   value={formData.assigned_to}
@@ -345,8 +365,10 @@ const ManageComplaint = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="">Unassigned</option>
-                  {users.map(user => (
-                    <option key={user._id} value={user._id}>{user.name}</option>
+                  {workers.map(worker => (
+                    <option key={worker._id || worker.id} value={worker._id || worker.id}>
+                      {worker.name} {worker.is_worker || worker.role === 'worker' ? '👷' : ''}{worker.skills ? ` (${worker.skills.join(', ')})` : ''}
+                    </option>
                   ))}
                 </select>
               </div>

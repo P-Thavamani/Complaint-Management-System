@@ -1,18 +1,15 @@
 {
-  "name": "complaint-management-system-frontend",
+  "name": "grievai-frontend",
   "version": "0.1.0",
   "private": true,
-  "description": "",
-  "author": "",
+  "description": "GrievAI - AI-Powered Grievance Management System Frontend",
+  "author": "P Thavamani",
   "license": "ISC",
   "main": "postcss.config.js",
-  "homepage": "https://P-Thavamani.github.io/Complaint-Management-System",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
     "eject": "react-scripts eject"
   },
   "dependencies": {
@@ -37,9 +34,7 @@
     "uuid": "^11.1.0",
     "web-vitals": "^2.1.4"
   },
-  "devDependencies": {
-    "gh-pages": "^6.3.0"
-  },
+  "devDependencies": {},
   "eslintConfig": {
     "extends": [
       "react-app",

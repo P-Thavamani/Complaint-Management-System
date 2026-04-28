@@ -18,9 +18,9 @@ const Home = () => {
 			{/* Hero Section */}
 			<section className="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-20">
 				<div className="container mx-auto px-4 text-center">
-					<h1 className="text-4xl md:text-5xl font-bold mb-6">AI-Powered Complaint Management System</h1>
+					<h1 className="text-4xl md:text-5xl font-bold mb-6">GrievAI - AI-Powered Grievance Management System</h1>
 					<p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
-						Efficiently handle complaints with our intelligent system that uses AI to understand, categorize, and resolve issues.
+						Efficiently handle grievances with our intelligent system that uses AI to understand, categorize, and resolve issues.
 					</p>
 					<div className="flex flex-col sm:flex-row justify-center gap-4">
 						<Link to={isAdmin() ? '/admin' : '/register'} className="btn-secondary text-lg px-8 py-3">
@@ -78,7 +78,7 @@ const Home = () => {
 			{/* Multi-Input Section */}
 			<section className="py-16">
 				<div className="container mx-auto px-4">
-					<h2 className="text-3xl font-bold text-center mb-12">Multiple Ways to Submit Complaints</h2>
+					<h2 className="text-3xl font-bold text-center mb-12">Multiple Ways to Submit Grievances</h2>
 
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 						{/* Text Input */}
@@ -89,9 +89,9 @@ const Home = () => {
 										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
 									</svg>
 								</div>
-								<h3 className="text-xl font-semibold">Text Complaints</h3>
+								<h3 className="text-xl font-semibold">Text Grievances</h3>
 							</div>
-							<p className="text-gray-600">Type your complaint directly into our chatbot interface. Our NLP system will understand your issue and provide immediate assistance.</p>
+							<p className="text-gray-600">Type your grievance directly into our chatbot interface. Our NLP system will understand your issue and provide immediate assistance.</p>
 						</Link>
 
 						{/* Voice Input */}
@@ -102,9 +102,9 @@ const Home = () => {
 										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
 									</svg>
 								</div>
-								<h3 className="text-xl font-semibold">Voice Complaints</h3>
+								<h3 className="text-xl font-semibold">Voice Grievances</h3>
 							</div>
-							<p className="text-gray-600">Simply speak your complaint using our voice input feature. Google Speech-to-Text converts your voice to text for processing.</p>
+							<p className="text-gray-600">Simply speak your grievance using our voice input feature. Google Speech-to-Text converts your voice to text for processing.</p>
 						</Link>
 
 						{/* Image Input */}
@@ -137,8 +137,8 @@ const Home = () => {
 							<div className="relative mb-12">
 								<div className="flex flex-col md:flex-row items-center">
 									<div className="flex-1 md:text-right md:pr-8 mb-4 md:mb-0">
-										<h3 className="text-xl font-semibold mb-2">Submit Your Complaint</h3>
-										<p className="text-gray-600">Use text, voice, or image to submit your complaint through our user-friendly interface.</p>
+										<h3 className="text-xl font-semibold mb-2">Submit Your Grievance</h3>
+										<p className="text-gray-600">Use text, voice, or image to submit your grievance through our user-friendly interface.</p>
 									</div>
 									<div className="z-10 flex items-center justify-center w-12 h-12 rounded-full bg-primary-500 text-white font-bold">1</div>
 									<div className="flex-1 md:pl-8 hidden md:block"></div>
@@ -152,7 +152,7 @@ const Home = () => {
 									<div className="z-10 flex items-center justify-center w-12 h-12 rounded-full bg-primary-500 text-white font-bold">2</div>
 									<div className="flex-1 md:pl-8 mb-4 md:mb-0">
 										<h3 className="text-xl font-semibold mb-2">AI Processing</h3>
-										<p className="text-gray-600">Our AI analyzes your complaint, categorizes it, and attempts to provide an immediate solution.</p>
+										<p className="text-gray-600">Our AI analyzes your grievance, categorizes it, and attempts to provide an immediate solution.</p>
 									</div>
 								</div>
 							</div>
@@ -176,7 +176,7 @@ const Home = () => {
 									<div className="z-10 flex items-center justify-center w-12 h-12 rounded-full bg-primary-500 text-white font-bold">4</div>
 									<div className="flex-1 md:pl-8 mb-4 md:mb-0">
 										<h3 className="text-xl font-semibold mb-2">Resolution & Feedback</h3>
-										<p className="text-gray-600">Track your complaint status in real-time and receive notifications as it progresses toward resolution.</p>
+										<p className="text-gray-600">Track your grievance status in real-time and receive notifications as it progresses toward resolution.</p>
 									</div>
 								</div>
 							</div>
@@ -189,7 +189,7 @@ const Home = () => {
 			<section className="py-16 bg-primary-700 text-white">
 				<div className="container mx-auto px-4 text-center">
 					<h2 className="text-3xl font-bold mb-6">Ready to Get Started?</h2>
-					<p className="text-xl mb-8 max-w-2xl mx-auto">Join thousands of satisfied users who have streamlined their complaint management process with our AI-powered system.</p>
+					<p className="text-xl mb-8 max-w-2xl mx-auto">Join thousands of satisfied users who have streamlined their grievance management process with our AI-powered system.</p>
 					<Link to={isAdmin() ? '/admin' : '/register'} className="bg-white text-primary-700 hover:bg-gray-100 font-medium py-3 px-8 rounded-md transition-colors duration-200 text-lg inline-block">Create Your Account</Link>
 				</div>
 			</section>

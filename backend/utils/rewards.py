@@ -330,7 +330,7 @@ Your New Benefits:
 Keep up the excellent work! Your dedication and contributions are making a real difference.
 
 Best regards,
-The Complaint Management Team
+The GrievAI Team
         """
         
         # HTML email content
@@ -373,7 +373,7 @@ The Complaint Management Team
             </div>
             
             <div style="background: #2c3e50; padding: 20px; text-align: center;">
-                <p style="color: #bdc3c7; margin: 0; font-size: 14px;">Complaint Management System - Rewards Team</p>
+                <p style="color: #bdc3c7; margin: 0; font-size: 14px;">GrievAI - Rewards Team</p>
             </div>
         </div>
         """
@@ -453,7 +453,7 @@ def send_reward_notification(user_email, points, total_points, action_type, curr
             </div>
             
             <div style="background-color: #f9fafb; padding: 20px; border-radius: 0 0 10px 10px; text-align: center;">
-                <p style="color: #4b5563; margin: 0;">Complaint Management System</p>
+                <p style="color: #4b5563; margin: 0;">GrievAI</p>
             </div>
         </div>
         """

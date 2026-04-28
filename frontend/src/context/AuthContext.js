@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import jwt_decode from 'jwt-decode';
 import axios from '../services/axios';
@@ -9,9 +9,9 @@ export const AuthContext = createContext({
 	loading: true,
 	isAdmin: () => false,
 	isWorker: () => false,
-	login: () => {},
-	logout: () => {},
-	fetchUserProfile: () => {},
+	login: () => { },
+	logout: () => { },
+	fetchUserProfile: () => { },
 });
 
 export const AuthProvider = ({ children }) => {
@@ -19,8 +19,17 @@ export const AuthProvider = ({ children }) => {
 	const [loading, setLoading] = useState(true);
 	const navigate = useNavigate();
 
+	// Logout function
+	const logout = useCallback(() => {
+		localStorage.removeItem('token');
+		setUser(null);
+		delete axios.defaults.headers.common['Authorization'];
+		toast.info('You have been logged out.');
+		navigate('/');
+	}, [navigate]);
+
 	// Fetch user profile data from the server
-	const fetchUserProfile = async () => {
+	const fetchUserProfile = useCallback(async () => {
 		try {
 			const response = await axios.get('/api/users/profile');
 			// Merge the profile data with the basic user data
@@ -38,7 +47,7 @@ export const AuthProvider = ({ children }) => {
 			}
 			return null;
 		}
-	};
+	}, [logout]);
 
 	// Check if user is already logged in on component mount
 	useEffect(() => {
@@ -70,7 +79,7 @@ export const AuthProvider = ({ children }) => {
 		} else {
 			setLoading(false);
 		}
-	}, []);
+	}, [fetchUserProfile, logout]);
 
 	// Login function
 	const login = async (email, password) => {
@@ -83,9 +92,9 @@ export const AuthProvider = ({ children }) => {
 			setUser(decoded);
 			axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 			toast.success('Login successful!');
-			if (decoded.is_admin) {
+			if (decoded.admin || decoded.is_admin) {
 				navigate('/admin');
-			} else if (decoded.is_worker) {
+			} else if (decoded.worker || decoded.is_worker) {
 				navigate('/worker');
 			} else {
 				navigate('/dashboard');
@@ -117,23 +126,16 @@ export const AuthProvider = ({ children }) => {
 		}
 	};
 
-	// Logout function
-	const logout = () => {
-		localStorage.removeItem('token');
-		setUser(null);
-		delete axios.defaults.headers.common['Authorization'];
-		toast.info('You have been logged out.');
-		navigate('/');
-	};
+
 
 	// Check if user is admin
 	const isAdmin = () => {
-		return user && user.is_admin === true;
+		return user && (user.is_admin === true || user.admin === true);
 	};
 
 	// Check if user is worker
 	const isWorker = () => {
-		return user && user.is_worker === true;
+		return user && (user.is_worker === true || user.worker === true);
 	};
 
 	// Update user data after profile changes

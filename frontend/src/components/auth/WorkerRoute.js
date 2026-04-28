@@ -3,9 +3,8 @@ import { Navigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 
 const WorkerRoute = ({ children }) => {
-    const { user, loading } = useContext(AuthContext);
+    const { user, loading, isAdmin, isWorker } = useContext(AuthContext);
 
-    // Show loading state while checking authentication
     if (loading) {
         return (
             <div className="flex justify-center items-center h-screen">
@@ -19,12 +18,16 @@ const WorkerRoute = ({ children }) => {
         return <Navigate to="/login" replace />;
     }
 
-    // Redirect to dashboard if not worker
-    if (!user.is_worker) {
+    // Admins can also access worker dashboard
+    if (isAdmin()) {
+        return children;
+    }
+
+    // Redirect to dashboard if not worker (check both worker and is_worker flags)
+    if (!isWorker()) {
         return <Navigate to="/dashboard" replace />;
     }
 
-    // Render children if authenticated and worker
     return children;
 };
 

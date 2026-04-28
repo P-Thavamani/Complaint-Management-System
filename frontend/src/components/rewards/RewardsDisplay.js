@@ -1,26 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import axios from '../../services/axios';
-import { toast } from 'react-toastify';
+import React from 'react';
+import { useRewards } from '../../context/RewardsContext';
 
 const RewardsDisplay = () => {
-  const [rewardInfo, setRewardInfo] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchRewardInfo = async () => {
-      try {
-        const response = await axios.get('/api/rewards/user');
-        setRewardInfo(response.data);
-      } catch (error) {
-        console.error('Error fetching reward information:', error);
-        toast.error('Failed to load reward information');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRewardInfo();
-  }, []);
+  const { rewardData: rewardInfo, loading } = useRewards();
 
   if (loading) {
     return (

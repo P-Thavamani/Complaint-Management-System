@@ -99,6 +99,70 @@ def create_complaint(current_user):
     db = current_app.config['db']
     
     # Get user details
+    user = db.users.find_one({'_id': ObjectId(current_user['id'])})
+    
+    # Map "urgent" priority to "high"
+    priority = data.get('priority', 'medium')
+    if priority == 'urgent':
+        priority = 'high'
+
+    # Create complaint document
+    complaint = {
+        'subject': data['subject'],
+        'description': data['description'],
+        'category': data['category'],
+        'subcategory': data.get('subcategory', ''),
+        'subcategoryName': data.get('subcategoryName', ''),
+        'problem': data.get('problem', ''),
+        'status': 'pending',
+        'priority': priority,
+        'user_id': ObjectId(current_user['id']),
+        'user': {
+            'name': user['name'],
+            'email': user['email']
+        },
+        'createdAt': datetime.utcnow(),
+        'updatedAt': datetime.utcnow(),
+        'lastViewedAt': datetime.utcnow(),
+        'comments': [],
+        'imageUrl': data.get('imageUrl'),
+        'detectedObjects': data.get('detectedObjects', [])
+    }
+    
+    # Insert complaint into database
+    result = db.complaints.insert_one(complaint)
+    complaint_id = result.inserted_id
+    
+    # Get the created complaint
+    created_complaint = db.complaints.find_one({'_id': complaint_id})
+    formatted_complaint = format_complaint(created_complaint)
+    
+    # Send notification to user about ticket creation
+    notification_result = send_ticket_creation_notification(
+        user_email=user['email'],
+        user_name=user['name'],
+        ticket_id=str(complaint_id),
+        subject=data.get('subject'),
+        category=data.get('category'),
+        priority=priority
+    )
+    
+    # Award points for creating a ticket
+    reward_result = award_points(current_user['id'], 'create_ticket', str(complaint_id))
+    
+    response = {
+        'complaint': formatted_complaint,
+        'notifications': notification_result
+    }
+    
+    if reward_result.get('awarded', False):
+        response['reward'] = {
+            'points_earned': reward_result.get('points', 0),
+            'total_points': reward_result.get('total_points', 0),
+            'message': reward_result.get('message', '')
+        }
+    
+    return jsonify(response), 201
 
 @complaints_bp.route('/<complaint_id>/claim', methods=['POST'])
 @token_required
@@ -154,8 +218,8 @@ def claim_complaint(current_user, complaint_id):
         'message': 'Complaint claimed successfully',
         'complaint': formatted_complaint
     }), 200
-    user = db.users.find_one({'_id': ObjectId(current_user['id'])})
-     
+
+
 @complaints_bp.route('/<complaint_id>/escalate', methods=['POST'])
 @token_required
 def escalate_complaint(current_user, complaint_id):
@@ -231,72 +295,6 @@ def escalate_complaint(current_user, complaint_id):
         'message': 'Complaint escalated successfully',
         'complaint': formatted_complaint
     }), 200
-    
-    # Map "urgent" priority to "high"
-    priority = data.get('priority', 'medium')
-    if priority == 'urgent':
-        priority = 'high'
-
-    # Create complaint document
-    complaint = {
-        'subject': data['subject'],
-        'description': data['description'],
-        'category': data['category'],
-        'subcategory': data.get('subcategory', ''),
-        'subcategoryName': data.get('subcategoryName', ''),
-        'problem': data.get('problem', ''),
-        'status': 'pending',
-        'priority': priority,  # Use the mapped priority
-        'user_id': ObjectId(current_user['id']),
-        'user': {
-            'name': user['name'],
-            'email': user['email']
-        },
-        'createdAt': datetime.utcnow(),
-        'updatedAt': datetime.utcnow(),
-        'lastViewedAt': datetime.utcnow(),  # Add lastViewedAt field for tracking updates
-        'comments': [],
-        'imageUrl': data.get('imageUrl'),
-        'detectedObjects': data.get('detectedObjects', [])
-    }
-    
-    # Insert complaint into database
-    result = db.complaints.insert_one(complaint)
-    complaint_id = result.inserted_id
-    
-    # Get the created complaint
-    created_complaint = db.complaints.find_one({'_id': complaint_id})
-    
-    # Format complaint for response
-    formatted_complaint = format_complaint(created_complaint)
-    
-    # Send notification to user about ticket creation
-    notification_result = send_ticket_creation_notification(
-        user_email=user['email'],
-        user_name=user['name'],
-        ticket_id=str(complaint_id),
-        subject=data.get('subject'),
-        category=data.get('category'),
-        priority=priority
-    )
-    
-    # Award points for creating a ticket
-    reward_result = award_points(current_user['id'], 'create_ticket', str(complaint_id))
-    
-    response = {
-        'complaint': formatted_complaint,
-        'notifications': notification_result
-    }
-    
-    # Add reward information to the response
-    if reward_result.get('awarded', False):
-        response['reward'] = {
-            'points_earned': reward_result.get('points', 0),
-            'total_points': reward_result.get('total_points', 0),
-            'message': reward_result.get('message', '')
-        }
-    
-    return jsonify(response), 201
 
 @complaints_bp.route('/<complaint_id>', methods=['GET'])
 @token_required
@@ -315,8 +313,16 @@ def get_complaint_detail(current_user, complaint_id):
     if not complaint:
         return jsonify({'error': 'Complaint not found'}), 404
     
-    # Check if user is authorized to view this complaint
-    if str(complaint['user_id']) != current_user['id'] and not current_user['is_admin']:
+    # Check authorization: user owns it, OR admin, OR worker assigned to it
+    is_owner = str(complaint['user_id']) == current_user['id']
+    is_admin_user = current_user.get('is_admin', False)
+    is_assigned_worker = (
+        current_user.get('is_worker', False) and
+        complaint.get('assigned_to') and
+        str(complaint['assigned_to']) == current_user['id']
+    )
+
+    if not (is_owner or is_admin_user or is_assigned_worker):
         return jsonify({'error': 'Unauthorized to view this complaint'}), 403
     
     # If complaint has assigned_to, get the agent details
